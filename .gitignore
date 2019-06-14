@@ -1,3 +1,5 @@
 GMT_files
 phenos-2019may
 *.db
+pathways.json
+phenos.json
