@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-# /api/phenos.json
-# /api/pathways.json
+# TODO: support gzip/brotli compression
 
 import sqlite3
 from flask import g, Flask, jsonify, abort, send_file
@@ -63,3 +62,7 @@ def phenos():
 @app.route('/api/pathways.json')
 def pathways():
     return send_file('pathways.json')
+
+if __name__ == '__main__':
+    from kpa.http_utils import run_gunicorn
+    run_gunicorn(app)
