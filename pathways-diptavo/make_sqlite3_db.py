@@ -1,16 +1,8 @@
 #!/usr/bin/env python3
 
-# TODO:
-# 4. /api/pathway/KEGG_FOO/phewas , /api/pathway/KEGG_FOO/genes (perhaps w/ chr:start-end) , /api/pheno/008/pathwas
-# 5. make PathWAS and PheWAS pages
-# 6. make sqlite3 of (phenotype, gene) -> pval
-# 7. /api/pathway-pheno-genes/KEGG_FOO/008
-# 8. phenotypes.json tophits.json pathways.json
-
 import os, re, glob, gzip, sqlite3, itertools
 
-
-# 1. make list of phenotypes: phecode
+# make list of phenotypes: phecode
 filenames = os.listdir('phenos-2019may')
 for fname in filenames:
     assert re.match(r'PheCode_([0-9]{3,4}(?:\.[0-9]{1,2})?)_(Curated|GO).wConditional.txt.gz$', fname), fname
@@ -24,7 +16,7 @@ for phecode in phecodes:
 print(len(phecodes), 'phecodes')
 
 
-# 2. make list of pathways: name, url, Curated/GO, category, contained_genes
+# make list of pathways: name, url, Curated/GO, category, contained_genes
 assert genesettypes == {'GO', 'Curated'} # sanity-check
 pathways = {}
 for genesettype in genesettypes:
@@ -64,8 +56,8 @@ for gmt_filepath in glob.glob('GMT_files/*.gmt.dat'):
 assert set(d['category'] for d in pathways.values()) == set('KEGG MOLECULAR BIOCARTA BIOLOGICAL_PROC OTHER-CANONICAL CELLULAR CGP REACTOME'.split())
 
 
-# 3. make mapping of (phenotype, pathway) -> (pval, selected_genes)
-#    store in sqlite3 as table (pheno, pathway, pval, selected_genes)
+# make mapping of (phenotype, pathway) -> (pval, selected_genes)
+# store in sqlite3 as table (pheno, pathway, pval, selected_genes)
 phecode_ids = {phecode: id_ for id_, phecode in enumerate(sorted(phecodes))}
 pathway_ids = {name: id_ for id_, name in enumerate(sorted(pathways.keys()))}
 def pathway_row_generator():
