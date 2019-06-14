@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 # TODO:
-# 3a. add indexes on pheno_id and pathway_id to sqlite3
 # 4. /api/pathway/KEGG_FOO/phewas , /api/pathway/KEGG_FOO/genes (perhaps w/ chr:start-end) , /api/pheno/008/pathwas
 # 5. make PathWAS and PheWAS pages
 # 6. make sqlite3 of (phenotype, gene) -> pval
@@ -93,9 +92,7 @@ def pheno_pathway_assoc_row_generator(): # note: primary key not included
                     assert 1 <= len(selected_genes) < 20e3, line
                     assert all(g in pathways[name]['genes'] for g in selected_genes), line
                 except Exception: raise Exception(line)
-
                 yield (phecode_id, pathway_ids[name], float(pval_string), selected_genes_string)
-
 
 db_fname = 'pheno_pathway_assoc.db'
 if os.path.exists(db_fname): raise Exception(db_fname + ' already exists, please delete')
@@ -109,4 +106,5 @@ with conn: # this commits insertions
     conn.executemany('INSERT INTO pathway VALUES (?,?,?,?,?,?)', pathway_row_generator())
     conn.executemany('INSERT INTO pheno_pathway_assoc (pheno_id, pathway_id, pval, selected_genes_comma) VALUES (?,?,?,?)', pheno_pathway_assoc_row_generator())
 
-# select * from pheno_pathway_assoc LEFT JOIN pathway ON pheno_pathway_assoc.pathway_id = pathway.id LEFT JOIN pheno ON pheno_pathway_assoc.pheno_id = pheno.id WHERE pheno_pathway_assoc.pval < 0.01 LIMIT 1;
+    conn.execute('CREATE INDEX idx_assoc_pheno_id ON pheno_pathway_assoc (pheno_id)')
+    conn.execute('CREATE INDEX idx_assoc_pathway_id ON pheno_pathway_assoc (pathway_id)')
