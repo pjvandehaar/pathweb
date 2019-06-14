@@ -3,7 +3,7 @@
 import os, re, glob, gzip, sqlite3, itertools
 
 # make list of phenotypes: phecode
-filenames = os.listdir('phenos-2019may')
+filenames = os.listdir('input_data/phenos-2019may')
 for fname in filenames:
     assert re.match(r'PheCode_([0-9]{3,4}(?:\.[0-9]{1,2})?)_(Curated|GO).wConditional.txt.gz$', fname), fname
 phecode_and_genesettype = set(re.match(r'PheCode_([0-9]{3,4}(?:\.[0-9]{1,2})?)_(Curated|GO).wConditional.txt.gz$', fname).groups() for fname in filenames)
@@ -20,7 +20,7 @@ print(len(phecodes), 'phecodes')
 assert genesettypes == {'GO', 'Curated'} # sanity-check
 pathways = {}
 for genesettype in genesettypes:
-    with open('GMT_files/' + genesettype + '_Subclass.dat') as f:
+    with open('input_data/GMT_files/' + genesettype + '_Subclass.dat') as f:
         for line in f:
             name, url, category = line.split()
             if name == 'NA': continue
@@ -28,7 +28,7 @@ for genesettype in genesettypes:
             pathways[name] = dict(url=url, category=category, genesettype=genesettype)
 print(len(pathways), 'pathways')
 
-for gmt_filepath in glob.glob('GMT_files/*.gmt.dat'):
+for gmt_filepath in glob.glob('input_data/GMT_files/*.gmt.dat'):
     # note: `.gmt.dat` files appear to just be reformatted versions of the `.gmt` files
     num_matching, num_lines = 0, 0
     with open(gmt_filepath) as f:
@@ -70,7 +70,7 @@ def pheno_pathway_assoc_row_generator(): # note: primary key not included
         phecode_id = phecode_ids[phecode]
         filename = 'PheCode_{}_{}.wConditional.txt.gz'.format(phecode, genesettype)
         print(filename)
-        with gzip.open('phenos-2019may/' + filename, 'rt') as f:
+        with gzip.open('input_data/phenos-2019may/' + filename, 'rt') as f:
             for line in f:
                 name, url, pval_string, _, selected_genes_string, _ = line.split()
                 if pval_string == 'NA' and selected_genes_string == 'NA':
