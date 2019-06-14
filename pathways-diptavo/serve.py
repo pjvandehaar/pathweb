@@ -4,10 +4,12 @@
 # TODO: use an in-memory redis cache
 
 import sqlite3
-from flask import g, Flask, jsonify, abort
+from flask import g, Flask, jsonify, abort, render_template
 from flask_compress import Compress
 app = Flask(__name__)
 Compress(app)
+
+app.config['LZJS_VERSION'] = '0.9.0'
 
 DATABASE = 'pheno_pathway_assoc.db'
 def get_db():
@@ -27,17 +29,40 @@ def get_df(query, args=()):
     cur.close()
     return {colname: [row[i] for row in rows] for i, colname in enumerate(colnames)}
 
+
 @app.route('/')
-def index():
-    urls = '/api/pheno/041.4 /api/pathway/GO_COLLAGEN_BINDING /api/pathway_pheno_assoc/GO_ODORANT_BINDING/446.4 /static/phenos.json /static/pathways.json'.split()
+def index_page():
+    urls = '/api/pheno/041.4 /pathway/GO_COLLAGEN_BINDING /api/pathway/GO_COLLAGEN_BINDING /api/pathway_pheno_assoc/GO_ODORANT_BINDING/446.4 /static/phenos.json /static/pathways.json'.split()
     return '<br>'.join('<a href="{0}">{0}</a>'.format(url) for url in urls)
+
+@app.route('/pathway/<pathway_name>')
+def pathway_page(pathway_name):
+    matches = list(get_db().execute('SELECT id,url,category,genesettype,genes_comma FROM pathway WHERE name = ?', (pathway_name,)))
+    if not matches: return abort(404)
+    url, category, genesettype, genes_comma = matches[0][1:]
+    return render_template('pathway.html', pathway_name=pathway_name, url=url, category=category, genesettype=genesettype, genes_comma=genes_comma)
+
+@app.route('/go')
+def go():return 'autocomplete not yet implemented'
+@app.route('/phenotypes')
+def phenotypes_page():return 'not yet implemented'
+@app.route('/pathways')
+def pathways_page():return 'not yet implemented'
+@app.route('/random')
+def random_page():return 'not yet implemented'
+@app.route('/about')
+def about_page():return 'not yet implemented'
+
 
 @app.route('/api/pathway/<pathway_name>')
 def pathway_api(pathway_name):
     matches = list(get_db().execute('SELECT id,url,category,genesettype,genes_comma FROM pathway WHERE name = ?', (pathway_name,)))
     if not matches: return abort(404)
     pathway_id = matches[0][0]
-    df = get_df('SELECT phecode,pval,selected_genes_comma FROM pheno_pathway_assoc LEFT JOIN pheno ON pheno_pathway_assoc.pheno_id=pheno.id WHERE pathway_id=?', (pathway_id,))
+    df = get_df('SELECT phecode,pval,selected_genes_comma FROM pheno_pathway_assoc '
+                'LEFT JOIN pheno ON pheno_pathway_assoc.pheno_id=pheno.id '
+                'WHERE pathway_id=? '
+                'ORDER BY phecode', (pathway_id,))
     return jsonify(dict(url=matches[0][1], category=matches[0][2], genesettype=matches[0][3], genes=matches[0][4].split(','), phenos=df))
 
 @app.route('/api/pheno/<phecode>')
