@@ -30,5 +30,7 @@ for i, row in enumerate(conn.execute('SELECT * FROM pheno_pathway_assoc')):
         pathway['num_sig_assocs'] += 1
 
 mkdir_p('static')
-with open('static/phenos.json', 'w') as f: json.dump(sorted(pheno_by_id.values(), key=lambda x:x['best_pval']), f, separators=(',', ':'))
-with open('static/pathways.json', 'w') as f: json.dump(sorted(pathway_by_id.values(), key=lambda x:x['best_pval']), f, separators=(',', ':'))
+with open('static/phenos.json', 'w') as f:
+    json.dump(sorted((p for p in pheno_by_id.values() if p['best_pval'] <= 1), key=lambda x:x['best_pval']), f, separators=(',', ':'))
+with open('static/pathways.json', 'w') as f:
+    json.dump(sorted((p for p in pathway_by_id.values() if p['best_pval'] <= 1), key=lambda x:x['best_pval']), f, separators=(',', ':'))
