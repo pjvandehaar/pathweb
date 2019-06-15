@@ -6,8 +6,7 @@
 # TODO: include selected_genes for the best pathways?
 # MAYBE: use sqlite instead of json so that the browser can page?
 
-from boltons.fileutils import mkdir_p
-import sqlite3, json
+import sqlite3, json, os
 conn = sqlite3.connect('pheno_pathway_assoc.db')
 conn.row_factory = sqlite3.Row
 
@@ -29,7 +28,7 @@ for i, row in enumerate(conn.execute('SELECT * FROM pheno_pathway_assoc')):
         pheno['num_sig_assocs'] += 1
         pathway['num_sig_assocs'] += 1
 
-mkdir_p('static')
+if not os.path.exists('static'): os.mkdir('static')
 with open('static/phenotypes.json', 'w') as f:
     json.dump(sorted((p for p in pheno_by_id.values() if p['best_pval'] <= 1), key=lambda x:x['best_pval']), f, separators=(',', ':'))
 with open('static/pathways.json', 'w') as f:
