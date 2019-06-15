@@ -54,10 +54,12 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
     $(function() {
         var plot = LocusZoom.populate("#phewas_plot_container", data_sources, layout);
         window._debug.plot = plot;
-        setTimeout(function() {
-            // I think setTimeout is required because `plot.panels.phewas.data_layers.phewaspvalues.data` is not populated until some async happens
-            // TODO: find a way to have all elements hidden during the first render and then unhide
-            plot.panels.phewas.data_layers.phewaspvalues.hideElementsByFilters([['phewas:log_pvalue', '<', 0.7]]);
-        }, 10);
+        if (assocs.id.length > 3000) {
+            setTimeout(function() {
+                // I think setTimeout is required because `plot.panels.phewas.data_layers.phewaspvalues.data` is not populated until some async happens
+                // TODO: find a way to have all elements hidden during the first render and then unhide
+                plot.panels.phewas.data_layers.phewaspvalues.hideElementsByFilters([['phewas:log_pvalue', '<=', _.sortBy(assocs.log_pvalue).reverse()[1000]]]);
+            }, 10);
+        }
     });
 });
