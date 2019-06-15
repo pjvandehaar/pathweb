@@ -1,9 +1,8 @@
 'use strict';
 
 $.getJSON('/static/pathways.json').then(function(data) {
-    console.log(data);
     $(document).ready(function() {
-        var table = new Tabulator('#pathways_table', {
+        var table = new Tabulator('#table', {
 //            height: 600, // setting height lets Tabulator's VirtualDOM load really fast but makes scrolling awkward
             layout: 'fitColumns',
             pagination: 'local',

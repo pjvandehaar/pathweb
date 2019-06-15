@@ -1,9 +1,8 @@
 'use strict';
 
-$.getJSON('/static/phenotypes.json').then(function(phenotypes) {
-    console.log(phenotypes);
+$.getJSON('/static/phenotypes.json').then(function(data) {
     $(document).ready(function() {
-        var table = new Tabulator('#phenotypes_table', {
+        var table = new Tabulator('#table', {
 //            height: 600, // setting height lets Tabulator's VirtualDOM load really fast but makes scrolling awkward
             layout: 'fitColumns',
             pagination: 'local',
@@ -15,6 +14,6 @@ $.getJSON('/static/phenotypes.json').then(function(phenotypes) {
                 {title: 'Best P-value', field:'best_pval'},
             ],
         });
-        table.setData(phenotypes);
+        table.setData(data);
     });
 });
