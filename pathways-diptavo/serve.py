@@ -34,6 +34,10 @@ def go():return 'not implemented yet'
 @app.route('/about')
 def about_page():return 'not implemented yet'
 
+@app.route('/phenotypes')
+def phenotypes_page(): return render_template('phenotypes.html')
+@app.route('/pathways')
+def pathways_page(): return render_template('pathways.html')
 
 @app.route('/pathway/<pathway_name>')
 def pathway_page(pathway_name):
@@ -48,10 +52,21 @@ def pheno_page(phecode):
     if not matches: return abort(404)
     return render_template('pheno.html', phecode=phecode)
 
-@app.route('/phenotypes')
-def phenotypes_page(): return render_template('phenotypes.html')
-@app.route('/pathways')
-def pathways_page(): return render_template('pathways.html')
+@app.route('/pathway_pheno_assoc/<pathway_name>/<phecode>')
+def pathway_pheno_assoc_page(pathway_name, phecode):
+    matches = list(get_db().execute('SELECT id FROM pheno WHERE phecode=?', (phecode,)))
+    if not matches: return abort(404)
+    pheno_id = matches[0][0]
+
+    matches = list(get_db().execute('SELECT id,url,category,genesettype,genes_comma FROM pathway WHERE name = ?', (pathway_name,)))
+    if not matches: return abort(404)
+    pathway_id, pathway_url, pathway_category, pathway_genesettype = matches[0][:-1]
+    genes = matches[0][-1].split(',')
+
+    matches = list(get_db().execute('SELECT pval,selected_genes_comma FROM pheno_pathway_assoc LEFT JOIN pathway ON pheno_pathway_assoc.pathway_id=pathway.id WHERE pheno_id=? AND pathway_id=?', (pheno_id, pathway_id)))
+    if not matches: return abort(404)
+    pval, selected_genes = matches[0][0], matches[0][1].split(',')
+    return render_template('pathway_pheno_assoc.html', phecode=phecode, pathway_name=pathway_name, pathway_url=pathway_url, pathway_category=pathway_category, pathway_genesettype=pathway_genesettype, pval=pval, genes=genes, selected_genes=selected_genes)
 
 
 @app.route('/api/pathway/<pathway_name>')
