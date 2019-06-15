@@ -18,6 +18,10 @@
 <div class="row">
     <div class="col-xs-12">
         <h1 style="margin-top:0">{{ phecode }} + {{ pathway_name }} </h1>
+        <p>
+          <a href="/pheno/{{ phecode }}" class="btn btn-primary">Go to pheno {{ phecode }}</a>
+          <a href="/pathway/{{ pathway_name }}" class="btn btn-primary">Go to pathway {{ pathway_name }}</a>
+        </p>
         <p>Pathway Category: <i>{{ pathway_genesettype }} - {{ pathway_category }}</i></p>
         <p>Pathway URL: <i><a href="{{ pathway_url }}">{{ pathway_url }}</a></i></p>
         <p>pval: <i>{{ pval }}</i></p>

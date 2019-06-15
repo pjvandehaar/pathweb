@@ -37,7 +37,7 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
          "Category: <strong>{{phewas:genesettype|htmlescape}} / {{phewas:trait_group|htmlescape}}</strong><br>" +
          "P-value: <strong>{{phewas:log_pvalue|logtoscinotation|htmlescape}}</strong><br>"
         );
-    layout.panels[0].data_layers[1].behaviors.onclick = [{action: 'link', href: '/pathway/{{phewas:id}}'}];
+    layout.panels[0].data_layers[1].behaviors.onclick = [{action: 'link', href: '/pathway_pheno_assoc/{{phewas:id}}/'+model.phecode}];
     layout.panels[0].data_layers[1].y_axis.min_extent = [0, significance_threshold*1.1];
 
     if (assocs.id.length <= 10) {
@@ -74,7 +74,7 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
             pagination: 'local',
             paginationSize: 15,
             columns: [
-                {title: 'Pathway', field:'name', formatter:'link', formatterParams: { urlPrefix: '/pathway/' }, widthGrow:5},
+                {title: 'Pathway', field:'name', formatter:'link', formatterParams: {url:function(cell){return '/pathway_pheno_assoc/'+cell.getValue()+'/'+model.phecode}}, widthGrow:5},
                 {title: 'P-value', field:'pval'},
                 {title: 'Category', field:'category'},
             ],

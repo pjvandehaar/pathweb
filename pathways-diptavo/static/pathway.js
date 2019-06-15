@@ -38,7 +38,7 @@ $.getJSON('/api/pathway/'+model.pathway_name).then(function(resp) {
          "P-value: <strong>{{phewas:log_pvalue|logtoscinotation|htmlescape}}</strong><br>" +
          "Selected Genes: <strong>{{phewas:selected_genes_comma|space_after_comma|htmlescape}}</strong><br>"
         );
-    layout.panels[0].data_layers[1].behaviors.onclick = [{action: 'link', href: '/pheno/{{phewas:trait_label}}'}];
+    layout.panels[0].data_layers[1].behaviors.onclick = [{action: 'link', href: '/pathway_pheno_assoc/'+model.pathway_name+'/{{phewas:trait_label}}'}];
     layout.panels[0].data_layers[1].y_axis.min_extent = [0, significance_threshold*1.1];
 
     if (assocs.log_pvalue.filter(function(nlpval) { return nlpval == best_nlpval; }).length >= 13){
@@ -67,7 +67,7 @@ $.getJSON('/api/pathway/'+model.pathway_name).then(function(resp) {
             pagination: 'local',
             paginationSize: 15,
             columns: [
-                {title: 'Name', field:'phecode', formatter:'link', formatterParams: { urlPrefix: '/pheno/' }},
+                {title: 'Name', field:'phecode', formatter:'link', formatterParams: { urlPrefix: '/pathway_pheno_assoc/'+model.pathway_name+'/' }},
                 {title: 'P-value', field:'pval'},
                 {title: 'Selected Genes', field:'selected_genes_comma', widthGrow:5, formatter: function(cell) { return cell.getValue().replace(/,/g, ', ') }},
             ],
