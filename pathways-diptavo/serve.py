@@ -66,7 +66,7 @@ def pathway_api(pathway_name):
                 'LEFT JOIN pheno ON pheno_pathway_assoc.pheno_id=pheno.id '
                 'WHERE pathway_id=? '
                 'ORDER BY phecode', (pathway_id,))
-    return jsonify(dict(url=matches[0][1], category=matches[0][2], genesettype=matches[0][3], genes=matches[0][4].split(','), phenos=df))
+    return jsonify(dict(url=matches[0][1], category=matches[0][2], genesettype=matches[0][3], genes=matches[0][4].split(','), assocs=df))
 
 @app.route('/api/pheno/<phecode>')
 def pheno_api(phecode):
@@ -74,7 +74,7 @@ def pheno_api(phecode):
     if not matches: return abort(404)
     pheno_id = matches[0][0]
     df = get_df('SELECT name,category,genesettype,pval FROM pheno_pathway_assoc LEFT JOIN pathway ON pheno_pathway_assoc.pathway_id=pathway.id WHERE pheno_id=?', (pheno_id,))
-    return jsonify(df)
+    return jsonify(dict(assocs=df))
 
 @app.route('/api/pathway_pheno_assoc/<pathway_name>/<phecode>')
 def pathway_pheno_assoc_api(pathway_name, phecode):

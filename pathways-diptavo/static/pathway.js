@@ -4,7 +4,7 @@ LocusZoom.TransformationFunctions.set("space_after_comma", function(x) { return 
 LocusZoom.TransformationFunctions.set("linewrap", function(x) { return x.replace(/,/g, ', '); });
 
 $.getJSON('/api/pathway/'+model.pathway_name).then(function(resp) {
-    var phenos = resp.phenos;
+    var phenos = resp.assocs;
     phenos.id = phenos.phecode;
     phenos.trait_label = phenos.phecode;
     phenos.log_pvalue = phenos.pval.map(function(p) { return -Math.log10(Math.max(1e-6, p)); });
