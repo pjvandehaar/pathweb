@@ -37,16 +37,16 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
     layout.panels[0].data_layers[1].behaviors.onclick = [{action: 'link', href: '/pathway/{{phewas:id}}'}];
     layout.panels[0].data_layers[1].y_axis.min_extent = [0, significance_threshold*1.1];
 
-    if (assocs.log_pvalue.filter(function(nlpval) { return nlpval == best_nlpval; }).length >= 13){
-        layout.panels[0].data_layers[1].label = false; // if 13 are all tied for 1st, it'll be a mess so don't show any labels
-    } else if (assocs.id.length <= 10) {
-        layout.panels[0].data_layers[1].label.filters = []; // if len(assocs)<=10, show all labels
+    if (assocs.id.length <= 10) {
+        layout.panels[0].data_layers[1].label.filters = [];
+    } else if (assocs.log_pvalue.filter(function(nlpval) { return nlpval == best_nlpval; }).length >= 6) {
+        layout.panels[0].data_layers[1].label = false; // if too many are tied for 1st, it'll be a mess so don't show any labels
     } else {
-        var tenth_best_nlpval = _.sortBy(assocs.log_pvalue).reverse()[10];
+        var eighth_best_nlpval = _.sortBy(assocs.log_pvalue).reverse()[8];
         layout.panels[0].data_layers[1].label.filters = [
             {field: 'phewas:log_pvalue', operator: '>', value: significance_threshold},
             {field: 'phewas:log_pvalue', operator: '>', value: best_nlpval*0.5}, // must be in top half of screen
-            {field: 'phewas:log_pvalue', operator: '>=', value: tenth_best_nlpval} // must be in top 10
+            {field: 'phewas:log_pvalue', operator: '>=', value: eighth_best_nlpval} // must be among the best
         ];
     }
 
