@@ -1,8 +1,5 @@
 'use strict';
 
-// TODO: the phecodes are not in numerical order.  Sort them.
-// TODO: add a table
-
 LocusZoom.TransformationFunctions.set("space_after_comma", function(x) { return x.replace(/,/g, ', '); });
 LocusZoom.TransformationFunctions.set("linewrap", function(x) { return x.replace(/,/g, ', '); });
 

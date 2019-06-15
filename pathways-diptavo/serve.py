@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO: support gzip/brotli compression
-# TODO: use an in-memory redis cache
-
 import sqlite3
 from flask import g, Flask, jsonify, abort, render_template
 from flask_compress import Compress
@@ -34,6 +31,12 @@ def get_df(query, args=()):
 def index_page():
     urls = '/api/pheno/041.4 /pathway/GO_COLLAGEN_BINDING /api/pathway/GO_COLLAGEN_BINDING /api/pathway_pheno_assoc/GO_ODORANT_BINDING/446.4 /static/phenos.json /static/pathways.json'.split()
     return '<br>'.join('<a href="{0}">{0}</a>'.format(url) for url in urls)
+@app.route('/go')
+def go():return 'autocomplete not yet implemented'
+@app.route('/random')
+def random_page():return 'not yet implemented'
+@app.route('/about')
+def about_page():return 'not yet implemented'
 
 @app.route('/pathway/<pathway_name>')
 def pathway_page(pathway_name):
@@ -42,16 +45,16 @@ def pathway_page(pathway_name):
     url, category, genesettype, genes_comma = matches[0][1:]
     return render_template('pathway.html', pathway_name=pathway_name, url=url, category=category, genesettype=genesettype, genes_comma=genes_comma)
 
-@app.route('/go')
-def go():return 'autocomplete not yet implemented'
+@app.route('/pheno/<phecode>')
+def pheno_page(phecode):
+    matches = list(get_db().execute('SELECT id FROM pheno WHERE phecode=?', (phecode,)))
+    if not matches: return abort(404)
+    return render_template('pheno.html', phecode=phecode)
+
 @app.route('/phenotypes')
 def phenotypes_page():return 'not yet implemented'
 @app.route('/pathways')
 def pathways_page():return 'not yet implemented'
-@app.route('/random')
-def random_page():return 'not yet implemented'
-@app.route('/about')
-def about_page():return 'not yet implemented'
 
 
 @app.route('/api/pathway/<pathway_name>')
