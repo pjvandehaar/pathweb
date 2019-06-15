@@ -33,8 +33,6 @@ def index_page():
     return '<br>'.join('<a href="{0}">{0}</a>'.format(url) for url in urls)
 @app.route('/go')
 def go():return 'autocomplete not yet implemented'
-@app.route('/random')
-def random_page():return 'not yet implemented'
 @app.route('/about')
 def about_page():return 'not yet implemented'
 
