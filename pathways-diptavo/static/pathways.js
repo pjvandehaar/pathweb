@@ -13,7 +13,8 @@ $.getJSON('/static/pathways.json').then(function(data) {
                 {title: 'Best Phenotype', field:'best_assoc'},
                 {title: 'Best P-value', field:'best_pval'},
             ],
+            data: data,
+            initialSort: [{column:"num_sig_assocs", dir:"desc"}],
         });
-        table.setData(data);
     });
 });

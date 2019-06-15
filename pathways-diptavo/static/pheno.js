@@ -24,9 +24,12 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
         mouse_guide: false,
         dashboard: {components: [ {type: 'download', position: 'right', color: 'gray' } ]},
         panels: [
-            LocusZoom.Layouts.get('panel', 'phewas')
+            LocusZoom.Layouts.get('panel', 'phewas', {
+                margin: {top: 5, right: 5, bottom: 50, left: 50 }
+            })
         ],
     }
+
     layout.panels[0].data_layers[0].offset = significance_threshold;
     layout.panels[0].data_layers[1].fields.push('phewas:genesettype');
     layout.panels[0].data_layers[1].tooltip.html =
@@ -61,5 +64,22 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
                 plot.panels.phewas.data_layers.phewaspvalues.hideElementsByFilters([['phewas:log_pvalue', '<=', _.sortBy(assocs.log_pvalue).reverse()[1000]]]);
             }, 10);
         }
+    });
+
+    $(function() {
+        var data = dataframe_to_objects(assocs);
+        var table = new Tabulator('#table', {
+            //height: 600, // setting height lets Tabulator's VirtualDOM load really fast but makes scrolling awkward
+            layout: 'fitColumns',
+            pagination: 'local',
+            paginationSize: 15,
+            columns: [
+                {title: 'Pathway', field:'name', formatter:'link', formatterParams: { urlPrefix: '/pathway/' }, widthGrow:5},
+                {title: 'P-value', field:'pval'},
+                {title: 'Category', field:'category'},
+            ],
+            data: data,
+            initialSort: [{column:'pval', dir:'asc'}],
+        });
     });
 });

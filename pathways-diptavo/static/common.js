@@ -77,3 +77,15 @@ function fmt(format) {
 function deepcopy(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
+function dataframe_to_objects(df) {
+    // convert from dataframe format to javascript's typical array-of-objects format
+    // eg, {colA: [10,11], colB: [20,21]} -> [{colA:10, colB:20}, {colA:11, colB: 21}]
+    var keys = Object.keys(df);
+    var objects = df[keys[0]].map(function() { return {};});
+    keys.forEach(function(key) {
+        for (var i=0; i<objects.length; i++) {
+            objects[i][key] = df[key][i];
+        }
+    });
+    return objects;
+}

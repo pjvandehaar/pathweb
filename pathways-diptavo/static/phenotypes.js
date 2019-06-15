@@ -15,5 +15,6 @@ $.getJSON('/static/phenotypes.json').then(function(data) {
             ],
         });
         table.setData(data);
+        table.setSort([{column:"num_sig_assocs", dir:"desc"}]);
     });
 });

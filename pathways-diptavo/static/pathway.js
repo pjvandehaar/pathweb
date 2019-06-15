@@ -24,9 +24,12 @@ $.getJSON('/api/pathway/'+model.pathway_name).then(function(resp) {
         mouse_guide: false,
         dashboard: {components: [ {type: 'download', position: 'right', color: 'gray' } ]},
         panels: [
-            LocusZoom.Layouts.get('panel', 'phewas')
+            LocusZoom.Layouts.get('panel', 'phewas', {
+                margin: {top: 5, right: 5, bottom: 50, left: 50 }
+            })
         ],
     }
+
     layout.panels[0].data_layers[0].offset = significance_threshold;
     layout.panels[0].data_layers[1].fields.push('phewas:selected_genes_comma');
     layout.panels[0].data_layers[1].tooltip.html =
@@ -54,5 +57,22 @@ $.getJSON('/api/pathway/'+model.pathway_name).then(function(resp) {
     window._debug.assocs = assocs;
     $(function() {
         window._debug.plot = LocusZoom.populate("#phewas_plot_container", data_sources, layout);
+    });
+
+    $(function() {
+        var data = dataframe_to_objects(assocs);
+        var table = new Tabulator('#table', {
+            //height: 600, // setting height lets Tabulator's VirtualDOM load really fast but makes scrolling awkward
+            layout: 'fitColumns',
+            pagination: 'local',
+            paginationSize: 15,
+            columns: [
+                {title: 'Name', field:'phecode', formatter:'link', formatterParams: { urlPrefix: '/pheno/' }},
+                {title: 'P-value', field:'pval'},
+                {title: 'Selected Genes', field:'selected_genes_comma', widthGrow:5, formatter: function(cell) { return cell.getValue().replace(/,/g, ', ') }},
+            ],
+            data: data,
+            initialSort: [{column:'pval', dir:'asc'}],
+        });
     });
 });
