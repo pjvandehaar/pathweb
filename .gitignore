@@ -1,4 +1,4 @@
 input_data/
 *.db
 pathways.json
-phenos.json
+phenotypes.json

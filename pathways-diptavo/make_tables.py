@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# phenos.json - [{phecode:'008', best_pval:1e-5, best_assoc:'KEGG_FOO', num_sig_assocs:47}, ...]
+# phenotypes.json - [{phecode:'008', best_pval:1e-5, best_assoc:'KEGG_FOO', num_sig_assocs:47}, ...]
 # pathways.json - [{name:'KEGG_FOO', best_pval:1e-5, best_assoc:'008', num_sig_assocs:24}, ...]
 
 # TODO: include selected_genes for the best pathways?

@@ -29,12 +29,13 @@ def get_df(query, args=()):
 
 @app.route('/')
 def index_page():
-    urls = '/api/pheno/041.4 /pathway/GO_COLLAGEN_BINDING /api/pathway/GO_COLLAGEN_BINDING /api/pathway_pheno_assoc/GO_ODORANT_BINDING/446.4 /static/phenos.json /static/pathways.json'.split()
+    urls = '/pheno/041.4 /pathway/GO_COLLAGEN_BINDING /api/pathway_pheno_assoc/GO_ODORANT_BINDING/446.4 /phenotypes /static/pathways.json'.split()
     return '<br>'.join('<a href="{0}">{0}</a>'.format(url) for url in urls)
 @app.route('/go')
 def go():return 'autocomplete not yet implemented'
 @app.route('/about')
 def about_page():return 'not yet implemented'
+
 
 @app.route('/pathway/<pathway_name>')
 def pathway_page(pathway_name):
@@ -50,9 +51,9 @@ def pheno_page(phecode):
     return render_template('pheno.html', phecode=phecode)
 
 @app.route('/phenotypes')
-def phenotypes_page():return 'not yet implemented'
+def phenotypes_page(): return render_template('phenotypes.html')
 @app.route('/pathways')
-def pathways_page():return 'not yet implemented'
+def pathways_page(): return render_template('pathways.html')
 
 
 @app.route('/api/pathway/<pathway_name>')
