@@ -1,3 +1,4 @@
 input_data/
 *.db
-static/*.json
+pathways.json
+phenos.json

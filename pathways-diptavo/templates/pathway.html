@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+
+{% block in_head %}
+<script type="text/javascript">
+  window.model.pathway_name = {{ pathway_name|tojson(separators=(',',':'))|safe }};
+</script>
+
+<link href="https://cdn.jsdelivr.net/npm/locuszoom@{{ config.LZJS_VERSION }}/dist/locuszoom.css" rel="stylesheet" type="text/css">
+<script src="https://cdn.jsdelivr.net/npm/locuszoom@{{ config.LZJS_VERSION }}/dist/locuszoom.app.min.js" type="text/javascript"></script>
+
+<script src="{{ url_for('.static', filename='pathway.js') }}" type="text/javascript"></script>
+<style type="text/css">
+#phewas_plot_container { min-width: 700px; }
+#phewas_plot_container .lz-data_layer-tooltip { max-width: 400px; }
+</style>
+{% endblock %}
+
+
+{% block contained %}
+<div class="row">
+    <div class="variant-info col-xs-12">
+        <h1 style="margin-top:0">{{ pathway_name }}</h1>
+        <p>Category: <i>{{ genesettype }} - {{ category }}</i></p>
+        <p>Genes: <i>{{ genes_comma.replace(',',', ') }}</i></p>
+        <p>URL: <i><a href="{{ url }}">{{ url }}<a/></i></p>
+        <div id="phewas_plot_container">
+        </div>
+    </div>
+</div>
+{% endblock %}

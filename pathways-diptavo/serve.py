@@ -89,5 +89,5 @@ def pathway_pheno_assoc_api(pathway_name, phecode):
     return jsonify(ret)
 
 if __name__ == '__main__':
-    from kpa.http_utils import run_gunicorn
-    run_gunicorn(app)
+    app.run(port=5000, debug=True)
+    # from kpa.http_utils import run_gunicorn; run_gunicorn(app)
