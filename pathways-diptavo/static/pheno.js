@@ -1,7 +1,7 @@
 'use strict';
 
+LocusZoom.TransformationFunctions.set("underscore_breaker", function(x) { return x.replace(/_/g, '_<wbr>'); });
 LocusZoom.TransformationFunctions.set("space_after_comma", function(x) { return x.replace(/,/g, ', '); });
-LocusZoom.TransformationFunctions.set("linewrap", function(x) { return x.replace(/,/g, ', '); });
 
 $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
     // fields = genesettype, category, name, pval
@@ -30,9 +30,10 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
     layout.panels[0].data_layers[0].offset = significance_threshold;
     layout.panels[0].data_layers[1].fields.push('phewas:genesettype');
     layout.panels[0].data_layers[1].tooltip.html =
-        ("<strong>Phecode</strong> {{phewas:trait_label|htmlescape}}<br>" +
-         "<strong>Category:</strong> {{phewas:genesettype|htmlescape}} / {{phewas:trait_group|htmlescape}}<br>" +
-         "<strong>P-value:</strong> {{phewas:log_pvalue|logtoscinotation|htmlescape}}<br>");
+        ("<strong>{{phewas:trait_label|htmlescape|underscore_breaker}}</strong><br>" +
+         "Category: <strong>{{phewas:genesettype|htmlescape}} / {{phewas:trait_group|htmlescape}}</strong><br>" +
+         "P-value: <strong>{{phewas:log_pvalue|logtoscinotation|htmlescape}}</strong><br>"
+        );
     layout.panels[0].data_layers[1].behaviors.onclick = [{action: 'link', href: '/pathway/{{phewas:id}}'}];
     layout.panels[0].data_layers[1].y_axis.min_extent = [0, significance_threshold*1.1];
 
