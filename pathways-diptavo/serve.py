@@ -32,7 +32,7 @@ def index_page(): return render_template('index.html')
 @app.route('/go')
 def go():return 'not implemented yet'
 @app.route('/about')
-def about_page():return 'not implemented yet'
+def about_page(): return render_template('about.html')
 
 @app.route('/phenotypes')
 def phenotypes_page(): return render_template('phenotypes.html')
