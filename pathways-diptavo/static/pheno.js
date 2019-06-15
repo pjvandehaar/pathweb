@@ -57,11 +57,17 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
     $(function() {
         var plot = LocusZoom.populate("#phewas_plot_container", data_sources, layout);
         window._debug.plot = plot;
+        // if we have >3000 assocs, hide all points with logp<1, unless that leaves <1000 assocs, in which case just show the top 2000 assocs
         if (assocs.id.length > 3000) {
             setTimeout(function() {
                 // I think setTimeout is required because `plot.panels.phewas.data_layers.phewaspvalues.data` is not populated until some async happens
                 // TODO: find a way to have all elements hidden during the first render and then unhide
-                plot.panels.phewas.data_layers.phewaspvalues.hideElementsByFilters([['phewas:log_pvalue', '<=', _.sortBy(assocs.log_pvalue).reverse()[1000]]]);
+                var visibility_nlpval_threshold = 1;
+                if (plot.panels.phewas.data_layers.phewaspvalues.filter([['phewas:log_pvalue', '>', visibility_nlpval_threshold]]).length >= 1000) {
+                    plot.panels.phewas.data_layers.phewaspvalues.hideElementsByFilters([['phewas:log_pvalue', '<=', visibility_nlpval_threshold]]);
+                } else {
+                    plot.panels.phewas.data_layers.phewaspvalues.hideElementsByFilters([['phewas:log_pvalue', '<=', _.sortBy(assocs.log_pvalue).reverse()[2000]]]);
+                }
             }, 10);
         }
     });
