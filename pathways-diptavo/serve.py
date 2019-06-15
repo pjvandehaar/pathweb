@@ -28,13 +28,11 @@ def get_df(query, args=()):
 
 
 @app.route('/')
-def index_page():
-    urls = '/pheno/041.4 /pathway/GO_COLLAGEN_BINDING /api/pathway_pheno_assoc/GO_ODORANT_BINDING/446.4 /phenotypes /static/pathways.json'.split()
-    return '<br>'.join('<a href="{0}">{0}</a>'.format(url) for url in urls)
+def index_page(): return render_template('index.html')
 @app.route('/go')
-def go():return 'autocomplete not yet implemented'
+def go():return 'not implemented yet'
 @app.route('/about')
-def about_page():return 'not yet implemented'
+def about_page():return 'not implemented yet'
 
 
 @app.route('/pathway/<pathway_name>')

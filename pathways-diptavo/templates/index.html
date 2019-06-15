@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block navbar_left %}{% endblock %}
+
+{% block in_head %}
+<style type="text/css">
+  .navbar-default {
+    border: none;
+  }
+</style>
+<script type="text/javascript">
+$(function() { $('.typeahead').focus(); }); // autofocus attribute doesn't work in FF.
+</script>
+{% endblock %}
+
+{% block contained %}
+<br style="margin-top: 5em">
+<div class="row">
+    <div class="col-xs-12 col-sm-offset-1 col-sm-10">
+        <h1>PathWeb</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-offset-1 col-sm-10">
+        <div id="home-searchbox">
+            <form action="{{ url_for('.go') }}">
+               <fieldset>
+                  <div class="form-group">
+                    <input name="query" class="form-control typeahead" autocomplete="off" type="text" placeholder="Search for a pathway or phenotype" autofocus>
+                  </div>
+               </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
