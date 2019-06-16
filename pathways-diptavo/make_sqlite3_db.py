@@ -15,16 +15,27 @@ for phecode in phecodes:
         assert (phecode, genesettype) in phecode_and_genesettype, (phecode, genesettype)
 print(len(phecodes), 'phecodes')
 phenos = {}
-for row in csv.DictReader(open('input_data/Phenotype_Color.csv'), delimiter=','):
-    if row['PheCode'] not in phecodes: continue # un-needed
-    phenos[row['PheCode']] = {
-        'num_cases': int(row['Number.of.cases']),
-        'num_controls': int(row['Number.of.controls']),
-        'num_excluded_controls': int(row['Number.of.excluded.controls']),
-        'phenostring': row['Phenotype.Description'],
-        'category': row['Phenotype.Category'],
+for i, row in enumerate(csv.reader(open('input_data/Phenotype_Color.csv'), delimiter=',')):
+    # "Number.of.excluded.controls" contains a variable number of commas and so does "Phenotype.Description"
+    if i==0: continue
+    phecode = row[0]
+    num_cases = int(row[1])
+    num_controls = int(row[2])
+    # phenostring = row[6]
+    # category = row[7]
+    url_idx = [idx for idx,cell in enumerate(row) if cell.startswith('http')][0]
+    last_int_idx = [idx for idx,cell in enumerate(row) if cell.isdigit()][-1]
+    category = row[url_idx-1]
+    phenostring = ','.join(row[last_int_idx+1:url_idx-1])
+    assert 3 <= len(phenostring) < 200, repr(phenostring)
+    phenos[phecode] = {
+        'phenostring': phenostring,
+        'num_cases': num_cases,
+        'num_controls': num_controls,
+        'category': category,
     }
 for phecode in phecodes: assert phecode in phenos, phecode
+assert 2 <= len(set(p['category'] for p in phenos.values())) < 100
 
 # make list of pathways: name, url, genesettype(Curated/GO), category, genes
 assert genesettypes == {'GO', 'Curated'} # sanity-check

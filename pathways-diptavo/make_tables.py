@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
-# phenotypes.json - [{phecode:'008', best_pval:1e-5, best_assoc:'KEGG_FOO', num_sig_assocs:47}, ...]
-# pathways.json - [{name:'KEGG_FOO', best_pval:1e-5, best_assoc:'008', num_sig_assocs:24}, ...]
+# phenotypes.json - [{phecode:'008', category:'infectious diseases', best_pval:1e-5, best_assoc:'KEGG_FOO', num_sig_assocs:47}, ...]
+# pathways.json - [{name:'KEGG_FOO', category:'GCP', best_pval:1e-5, best_assoc:'008', num_sig_assocs:24}, ...]
 
-# TODO: include selected_genes for the best pathways?
 # MAYBE: use sqlite instead of json so that the browser can page?
 
 import sqlite3, json, os
@@ -12,10 +11,10 @@ conn.row_factory = sqlite3.Row
 
 pathway_by_id = {}
 for row in conn.execute('SELECT * FROM pathway'):
-    pathway_by_id[row['id']] = dict(name=row['name'], best_pval=999, best_assoc=None, num_sig_assocs=0)
+    pathway_by_id[row['id']] = dict(name=row['name'], category=row['category'],  best_pval=999, best_assoc=None, num_sig_assocs=0)
 pheno_by_id = {}
 for row in conn.execute('SELECT * FROM pheno'):
-    pheno_by_id[row['id']] = dict(phecode=row['phecode'], best_pval=999, best_assoc=None, num_sig_assocs=0)
+    pheno_by_id[row['id']] = dict(phecode=row['phecode'], phenostring=row['phenostring'], category=row['category'], best_pval=999, best_assoc=None, num_sig_assocs=0)
 
 for i, row in enumerate(conn.execute('SELECT * FROM pheno_pathway_assoc')):
     if i % 1_000_000 == 0: print(i)

@@ -48,15 +48,16 @@ def pathway_page(pathway_name):
 
 @app.route('/pheno/<phecode>')
 def pheno_page(phecode):
-    matches = list(get_db().execute('SELECT id FROM pheno WHERE phecode=?', (phecode,)))
+    matches = list(get_db().execute('SELECT id,phenostring,category FROM pheno WHERE phecode=?', (phecode,)))
     if not matches: return abort(404)
-    return render_template('pheno.html', phecode=phecode)
+    phenostring, category = matches[0][1:]
+    return render_template('pheno.html', phecode=phecode, phenostring=phenostring, category=category)
 
 @app.route('/pathway_pheno_assoc/<pathway_name>/<phecode>')
 def pathway_pheno_assoc_page(pathway_name, phecode):
-    matches = list(get_db().execute('SELECT id FROM pheno WHERE phecode=?', (phecode,)))
+    matches = list(get_db().execute('SELECT id,phenostring,category FROM pheno WHERE phecode=?', (phecode,)))
     if not matches: return abort(404)
-    pheno_id = matches[0][0]
+    pheno_id, phenostring, pheno_category = matches[0]
 
     matches = list(get_db().execute('SELECT id,url,category,genesettype,genes_comma FROM pathway WHERE name = ?', (pathway_name,)))
     if not matches: return abort(404)
@@ -66,7 +67,10 @@ def pathway_pheno_assoc_page(pathway_name, phecode):
     matches = list(get_db().execute('SELECT pval,selected_genes_comma FROM pheno_pathway_assoc LEFT JOIN pathway ON pheno_pathway_assoc.pathway_id=pathway.id WHERE pheno_id=? AND pathway_id=?', (pheno_id, pathway_id)))
     if not matches: return abort(404)
     pval, selected_genes = matches[0][0], matches[0][1].split(',')
-    return render_template('pathway_pheno_assoc.html', phecode=phecode, pathway_name=pathway_name, pathway_url=pathway_url, pathway_category=pathway_category, pathway_genesettype=pathway_genesettype, pval=pval, genes=genes, selected_genes=selected_genes)
+    return render_template('pathway_pheno_assoc.html',
+                           phecode=phecode, phenostring=phenostring, pheno_category=pheno_category,
+                           pathway_name=pathway_name, pathway_url=pathway_url, pathway_category=pathway_category, pathway_genesettype=pathway_genesettype,
+                           pval=pval, genes=genes, selected_genes=selected_genes)
 
 
 @app.route('/api/pathway/<pathway_name>')
@@ -74,7 +78,7 @@ def pathway_api(pathway_name):
     matches = list(get_db().execute('SELECT id,url,category,genesettype,genes_comma FROM pathway WHERE name = ?', (pathway_name,)))
     if not matches: return abort(404)
     pathway_id = matches[0][0]
-    df = get_df('SELECT phecode,pval,selected_genes_comma FROM pheno_pathway_assoc '
+    df = get_df('SELECT phecode,phenostring,category,pval,selected_genes_comma FROM pheno_pathway_assoc '
                 'LEFT JOIN pheno ON pheno_pathway_assoc.pheno_id=pheno.id '
                 'WHERE pathway_id=? '
                 'ORDER BY phecode', (pathway_id,))
@@ -87,21 +91,6 @@ def pheno_api(phecode):
     pheno_id = matches[0][0]
     df = get_df('SELECT name,category,genesettype,pval FROM pheno_pathway_assoc LEFT JOIN pathway ON pheno_pathway_assoc.pathway_id=pathway.id WHERE pheno_id=?', (pheno_id,))
     return jsonify(dict(assocs=df))
-
-@app.route('/api/pathway_pheno_assoc/<pathway_name>/<phecode>')
-def pathway_pheno_assoc_api(pathway_name, phecode):
-    matches = list(get_db().execute('SELECT id FROM pheno WHERE phecode=?', (phecode,)))
-    if not matches: return abort(404)
-    pheno_id = matches[0][0]
-
-    matches = list(get_db().execute('SELECT id,url,category,genesettype FROM pathway WHERE name = ?', (pathway_name,)))
-    if not matches: return abort(404)
-    pathway_id = matches[0][0]
-
-    df = get_df('SELECT pval,selected_genes_comma FROM pheno_pathway_assoc LEFT JOIN pathway ON pheno_pathway_assoc.pathway_id=pathway.id WHERE pheno_id=? AND pathway_id=?', (pheno_id, pathway_id))
-    ret = {key: valuelist[0] for key,valuelist in df.items()}
-    ret['selected_genes'] = ret.pop('selected_genes_comma').split(',')
-    return jsonify(ret)
 
 if __name__ == '__main__':
     import sys

@@ -80,9 +80,9 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
             pagination: 'local',
             paginationSize: 15,
             columns: [
+                {title: 'Category', field:'category'},
                 {title: 'Pathway', field:'name', formatter:'link', formatterParams: {url:function(cell){return '/pathway_pheno_assoc/'+cell.getValue()+'/'+model.phecode}}, widthGrow:5},
                 {title: 'P-value', field:'pval'},
-                {title: 'Category', field:'category'},
             ],
             data: data,
             initialSort: [{column:'pval', dir:'asc'}],
