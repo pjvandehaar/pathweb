@@ -79,7 +79,7 @@ def pathway_row_generator():
         d = pathways[pathwayname]
         yield (id_, pathwayname, d['url'], d['category'], d['genesettype'], ','.join(d['genes']))
 
-def pheno_pathway_assoc_row_generator(): # note: primary key not included
+def pheno_pathway_assoc_row_generator(): # doesn't output primary key, let's sqlite3 auto-increment instead
     for i, (phecode, genesettype) in enumerate(itertools.product(phecodes, genesettypes)):
         phecode_id = phecode_ids[phecode]
         filename = 'PheCode_{}_{}.wConditional.txt.gz'.format(phecode, genesettype)

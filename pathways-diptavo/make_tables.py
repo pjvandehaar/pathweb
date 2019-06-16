@@ -11,10 +11,15 @@ conn.row_factory = sqlite3.Row
 
 pathway_by_id = {}
 for row in conn.execute('SELECT * FROM pathway'):
-    pathway_by_id[row['id']] = dict(name=row['name'], category=row['category'],  best_pval=999, best_assoc=None, num_sig_assocs=0)
+    pathway_by_id[row['id']] = dict(
+        name=row['name'], category=row['category'],
+        best_pval=999, best_assoc=None, num_sig_assocs=0)
 pheno_by_id = {}
 for row in conn.execute('SELECT * FROM pheno'):
-    pheno_by_id[row['id']] = dict(phecode=row['phecode'], phenostring=row['phenostring'], category=row['category'], best_pval=999, best_assoc=None, num_sig_assocs=0)
+    pheno_by_id[row['id']] = dict(
+        phecode=row['phecode'], phenostring=row['phenostring'], category=row['category'],
+        num_cases=row['num_cases'], num_controls=row['num_controls'],
+        best_pval=999, best_assoc=None, num_sig_assocs=0)
 
 for i, row in enumerate(conn.execute('SELECT * FROM pheno_pathway_assoc')):
     if i % 1_000_000 == 0: print(i)
