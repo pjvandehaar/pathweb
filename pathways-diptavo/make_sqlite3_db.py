@@ -15,24 +15,14 @@ for phecode in phecodes:
         assert (phecode, genesettype) in phecode_and_genesettype, (phecode, genesettype)
 print(len(phecodes), 'phecodes')
 phenos = {}
-for i, row in enumerate(csv.reader(open('input_data/Phenotype_Color.csv'), delimiter=',')):
-    # "Number.of.excluded.controls" contains a variable number of commas and so does "Phenotype.Description"
-    if i==0: continue
-    phecode = row[0]
-    num_cases = int(row[1])
-    num_controls = int(row[2])
-    # phenostring = row[6]
-    # category = row[7]
-    url_idx = [idx for idx,cell in enumerate(row) if cell.startswith('http')][0]
-    last_int_idx = [idx for idx,cell in enumerate(row) if cell.isdigit()][-1]
-    category = row[url_idx-1]
-    phenostring = ','.join(row[last_int_idx+1:url_idx-1])
-    assert 3 <= len(phenostring) < 200, repr(phenostring)
-    phenos[phecode] = {
-        'phenostring': phenostring,
-        'num_cases': num_cases,
-        'num_controls': num_controls,
-        'category': category,
+for row in csv.DictReader(open('input_data/phenotype-colors.csv')):
+    def _int(s): num = int(s.replace(',','')); assert num >= 0, s; return num
+    phenos[row['PheCode']] = {
+        'phenostring': row['Phenotype.Description'],
+        'category': row['Phenotype.Category'],
+        'num_cases': _int(row['Number.of.cases']),
+        'num_controls': _int(row['Number.of.controls']),
+        'num_excluded_controls': _int(row['Number.of.excluded.controls']),
     }
 for phecode in phecodes: assert phecode in phenos, phecode
 assert 2 <= len(set(p['category'] for p in phenos.values())) < 100
@@ -82,7 +72,7 @@ pathway_ids = {name: id_ for id_, name in enumerate(sorted(pathways.keys()))}
 def pheno_row_generator():
     for phecode,id_ in phecode_ids.items():
         p = phenos[phecode]
-        yield (id_, phecode, p['phenostring'], p['category'])
+        yield (id_, phecode, p['phenostring'], p['category'], p['num_cases'], p['num_controls'], p['num_excluded_controls'])
 
 def pathway_row_generator():
     for pathwayname, id_ in pathway_ids.items():
@@ -115,11 +105,11 @@ db_fname = 'pheno_pathway_assoc.db'
 if os.path.exists(db_fname): raise Exception(db_fname + ' already exists, please delete')
 conn = sqlite3.connect(db_fname)
 with conn: # this commits insertions
-    conn.execute('create table pheno (id INTEGER PRIMARY KEY, phecode VARCHAR, phenostring VARCHAR, category VARCHAR)')
+    conn.execute('create table pheno (id INTEGER PRIMARY KEY, phecode VARCHAR, phenostring VARCHAR, category VARCHAR, num_cases INT, num_controls INT, num_excluded_controls INT)')
     conn.execute('create table pathway (id INTEGER PRIMARY KEY, name VARCHAR, url VARCHAR, category VARCHAR, genesettype VARCHAR, genes_comma VARCHAR)')
     conn.execute('create table pheno_pathway_assoc (id INTEGER PRIMARY KEY, pheno_id INTEGER, pathway_id INTEGER, pval REAL, selected_genes_comma VARCHAR, FOREIGN KEY(pheno_id) REFERENCES pheno(id), FOREIGN KEY(pathway_id) REFERENCES pathway(id))')
 
-    conn.executemany('INSERT INTO pheno VALUES (?,?,?,?)', pheno_row_generator())
+    conn.executemany('INSERT INTO pheno VALUES (?,?,?,?,?,?,?)', pheno_row_generator())
     conn.executemany('INSERT INTO pathway VALUES (?,?,?,?,?,?)', pathway_row_generator())
     conn.executemany('INSERT INTO pheno_pathway_assoc (pheno_id, pathway_id, pval, selected_genes_comma) VALUES (?,?,?,?)', pheno_pathway_assoc_row_generator())
 
