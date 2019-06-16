@@ -93,8 +93,5 @@ def pheno_api(phecode):
     return jsonify(dict(assocs=df))
 
 if __name__ == '__main__':
-    import sys
-    if sys.argv and sys.argv[1:] == 'debug':
-        app.run(port=5000, debug=True)
-    else:
-        from kpa.http_utils import run_gunicorn; run_gunicorn(app)
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1
+    app.run(port=5000, debug=True)
