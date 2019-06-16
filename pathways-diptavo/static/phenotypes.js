@@ -9,7 +9,7 @@ $.getJSON('/static/phenotypes.json').then(function(data) {
             paginationSize: 100,
             columns: [
                 {title: 'Code', field:'phecode', formatter:'link', formatterParams: { urlPrefix: '/pheno/' }},
-                {title: 'Name', field:'phenostring', formatter:'link', formatterParams: { url: function(cell){return '/pathway_pheno_assoc/'+model.pathway_name+'/'+cell.getData().phecode;}}, widthGrow:2},
+                {title: 'Name', field:'phenostring', formatter:'link', formatterParams: {url: function(cell){return '/pheno/'+cell.getData().phecode;}}, widthGrow:2},
                 {title: 'Category', field:'category', widthGrow:1},
                 {title: 'Num p<10<sup>-4</sup> Associations', field:'num_sig_assocs', width:200},
                 {title: 'Best Pathway', field:'best_assoc', widthGrow:2},
