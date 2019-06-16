@@ -8,9 +8,9 @@ $.getJSON('/static/phenotypes.json').then(function(data) {
             pagination: 'local',
             paginationSize: 100,
             columns: [
-                {title: 'Code', field:'phecode', formatter:'link', formatterParams: { urlPrefix: '/pheno/' }},
-                {title: 'Name', field:'phenostring', formatter:'link', formatterParams: {url: function(cell){return '/pheno/'+cell.getData().phecode;}}, widthGrow:2},
-                {title: 'Category', field:'category', widthGrow:1},
+                {title: 'Code', field:'phecode', formatter:'link', formatterParams: { urlPrefix: '/pheno/' }, headerFilter:true},
+                {title: 'Name', field:'phenostring', formatter:'link', formatterParams: {url: function(cell){return '/pheno/'+cell.getData().phecode;}}, headerFilter:true, widthGrow:2},
+                {title: 'Category', field:'category', headerFilter:true, widthGrow:1},
                 {title: '#Cases', field:'num_cases'},
                 {title: '#Controls', field:'num_controls'},
                 {title: 'Num p<10<sup>-4</sup> Associations', field:'num_sig_assocs', width:200},
