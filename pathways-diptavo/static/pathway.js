@@ -71,6 +71,8 @@ $.getJSON('/api/pathway/'+model.pathway_name).then(function(resp) {
                 {title: 'Category', field:'category'},
                 {title: 'Code', field:'phecode', formatter:'link', formatterParams: { urlPrefix: '/pathway_pheno_assoc/'+model.pathway_name+'/' }},
                 {title: 'Name', field:'phenostring', formatter:'link', formatterParams: { url: function(cell){return '/pathway_pheno_assoc/'+model.pathway_name+'/'+cell.getData().phecode;}}, widthGrow:2},
+                {title: '#Cases', field:'num_cases'},
+                {title: '#Controls', field:'num_controls'},
                 {title: 'P-value', field:'pval'},
                 {title: 'Selected Genes', field:'selected_genes_comma', formatter: function(cell) { return cell.getValue().replace(/,/g, ', ') }, widthGrow:2},
             ],

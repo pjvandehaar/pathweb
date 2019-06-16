@@ -78,7 +78,7 @@ def pathway_api(pathway_name):
     matches = list(get_db().execute('SELECT id,url,category,genesettype,genes_comma FROM pathway WHERE name = ?', (pathway_name,)))
     if not matches: return abort(404)
     pathway_id = matches[0][0]
-    df = get_df('SELECT phecode,phenostring,category,pval,selected_genes_comma FROM pheno_pathway_assoc '
+    df = get_df('SELECT phecode,phenostring,category,num_cases,num_controls,pval,selected_genes_comma FROM pheno_pathway_assoc '
                 'LEFT JOIN pheno ON pheno_pathway_assoc.pheno_id=pheno.id '
                 'WHERE pathway_id=? '
                 'ORDER BY phecode', (pathway_id,))

@@ -11,6 +11,8 @@ $.getJSON('/static/phenotypes.json').then(function(data) {
                 {title: 'Code', field:'phecode', formatter:'link', formatterParams: { urlPrefix: '/pheno/' }},
                 {title: 'Name', field:'phenostring', formatter:'link', formatterParams: {url: function(cell){return '/pheno/'+cell.getData().phecode;}}, widthGrow:2},
                 {title: 'Category', field:'category', widthGrow:1},
+                {title: '#Cases', field:'num_cases'},
+                {title: '#Controls', field:'num_controls'},
                 {title: 'Num p<10<sup>-4</sup> Associations', field:'num_sig_assocs', width:200},
                 {title: 'Best Pathway', field:'best_assoc', widthGrow:2},
                 {title: 'Best P-value', field:'best_pval'},
