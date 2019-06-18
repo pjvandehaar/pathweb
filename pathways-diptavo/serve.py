@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import sqlite3
-from flask import g, Flask, jsonify, abort, render_template
+import sqlite3, re, itertools
+from flask import g, Flask, jsonify, abort, render_template, request, url_for, redirect
 from flask_compress import Compress
 app = Flask(__name__)
 Compress(app)
@@ -32,8 +32,6 @@ def get_df(query, args=()):
 @app.route('/')
 def index_page():
     return render_template('index.html')
-@app.route('/go')
-def go():return 'not implemented yet'
 @app.route('/about')
 def about_page():
     return render_template('about.html')
@@ -96,6 +94,84 @@ def pheno_api(phecode):
     pheno_id = matches[0][0]
     df = get_df('SELECT name,category,genesettype,pval FROM pheno_pathway_assoc LEFT JOIN pathway ON pheno_pathway_assoc.pathway_id=pathway.id WHERE pheno_id=?', (pheno_id,))
     return jsonify(dict(assocs=df))
+
+
+class Autocompleter:
+    def __init__(self):
+        phenos_df = get_df('SELECT phecode,phenostring,category FROM pheno')
+        self.phenos = [{key: phenos_df[key][i] for key in phenos_df} for i in range(len(next(iter(phenos_df.values()))))]
+        self.phenos.sort(key=lambda p:float(p['phecode']))
+        for p in self.phenos:
+            p['phenostring--processed'] = self.process_string(p['phenostring'])
+        pathway_names = sorted(get_df('SELECT name FROM pathway')['name'])
+        self.pathways = [{'pathway_name': name} for name in pathway_names]
+        for p in self.pathways:
+            p['pathway_name--processed'] = self.process_string(p['pathway_name']).replace('_', ' ')
+    non_word_regex = re.compile(r"(?:_|[^\w\.])") # Most of the time we want to include periods in words but not underscores
+    def process_string(self, string):
+        # Cleaning inspired by <https://github.com/seatgeek/fuzzywuzzy/blob/6353e2/fuzzywuzzy/utils.py#L69>
+        return ' ' + self.non_word_regex.sub(' ', string).lower().strip()
+    def get_completions(self, query):
+        processed_query = self.process_string(query) # replace junk with spaces and use lower-case
+        for f in [self.get_completions_on_phecode, self.get_completions_on_phenostring, self.get_completions_on_pathwayname]:
+            results = list(itertools.islice(f(processed_query), 0, 10))
+            if results: return results
+        return []
+    def get_best_completion(self, query):
+        completions = self.get_completions(query)
+        if not completions: return None
+        return completions[0] # TODO
+    def get_completions_on_phecode(self, processed_query):
+        processed_query = processed_query.strip()
+        if not re.match(r'^[0-9]+(?:\.[0-9]*)?$', processed_query): return
+        for p in self.phenos:
+            if p['phecode'].startswith(processed_query):
+                yield {
+                    'value': p['phecode'],
+                    'display': '{} ({})'.format(p['phecode'], p['phenostring']),
+                    'url': url_for('pheno_page', phecode=p['phecode'])
+                }
+    def get_completions_on_phenostring(self, processed_query):
+        if len(processed_query) == 0: return
+        for p in self.phenos:
+            if processed_query in p['phenostring--processed']:
+                yield {
+                    'value': p['phenostring'],
+                    'display': '{} ({})'.format(p['phenostring'], p['phecode']),
+                    'url': url_for('pheno_page', phecode=p['phecode'])
+                }
+    def get_completions_on_pathwayname(self, processed_query):
+        if len(processed_query) == 0: return
+        for p in self.pathways:
+            if processed_query in p['pathway_name--processed']:
+                yield {
+                    'value': p['pathway_name'],
+                    'display': p['pathway_name'],
+                    'url': url_for('pathway_page', pathway_name=p['pathway_name']),
+                }
+
+def get_autocompleter():
+    a = getattr(g, '_autocompleter', None)
+    if a is None: a = g._autocompleter = Autocompleter()
+    return a
+@app.route('/api/autocomplete')
+def autocomplete_api():
+    '''generate suggestions for the searchbox'''
+    query = request.args.get('query', '')
+    suggestions = get_autocompleter().get_completions(query)
+    if suggestions:
+        return jsonify(sorted(suggestions, key=lambda sugg: sugg['display']))
+    return jsonify([])
+@app.route('/go')
+def go():
+    '''attempt to send the user to a relevant page after they hit enter on the searchbox'''
+    query = request.args.get('query', None)
+    if query is None: return redirect(url_for('index_page'))
+    best_suggestion = get_autocompleter().get_best_completion(query)
+    if not best_suggestion: return redirect(url_for('index_page'))
+    return redirect(best_suggestion['url'])
+
+
 
 if __name__ == '__main__':
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1
