@@ -7,7 +7,7 @@ app = Flask(__name__)
 Compress(app)
 
 app.config['LZJS_VERSION'] = '0.9.0'
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 60*5
 
 DATABASE = 'pheno_pathway_assoc.db'
 def get_db():
