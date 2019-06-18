@@ -7,7 +7,7 @@
       - format: space-delimited. columns are `pathway_name`, `pathway_url`, `pathway_category`
    - `input_data/GMT_files/C{2,5}.*.gmt.dat`:
       - contains the list of genes for each pathway
-   - `input_data/Phenotype_Color.csv`
+   - `input_data/phenotype-colors.csv`
 
 2. run `pip3 install -r requirments.txt`
 
