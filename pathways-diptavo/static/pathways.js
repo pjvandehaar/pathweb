@@ -8,8 +8,8 @@ $.getJSON('/static/pathways.json').then(function(data) {
             pagination: 'local',
             paginationSize: 100,
             columns: [
-                {title: 'Category', field:'category'},
-                {title: 'Name', field:'name', formatter:'link', formatterParams: { urlPrefix: '/pathway/' }, widthGrow:5},
+                {title: 'Category', field:'category', headerFilter:true},
+                {title: 'Name', field:'name', headerFilter:true, formatter:'link', formatterParams: { urlPrefix: '/pathway/' }, widthGrow:5},
                 {title: 'Num p<10<sup>-4</sup> Associations', field:'num_sig_assocs', width:200},
             ],
             tooltipGenerationMode: 'hover', // generate tooltips just-in-time when the data is hovered
