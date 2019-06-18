@@ -21,6 +21,7 @@ def close_connection(exception):
     if db is not None:
         db.close()
 def get_df(query, args=()):
+    '''get a dataframe (eg, `{phecode:['008','008.5'],pval:[0.3,0.01]}`) from the database'''
     cur = get_db().execute(query, args)
     colnames = [x[0] for x in cur.description]
     rows = cur.fetchall()
@@ -29,16 +30,19 @@ def get_df(query, args=()):
 
 
 @app.route('/')
-def index_page(): return render_template('index.html')
+def index_page():
+    return render_template('index.html')
 @app.route('/go')
 def go():return 'not implemented yet'
 @app.route('/about')
-def about_page(): return render_template('about.html')
-
+def about_page():
+    return render_template('about.html')
 @app.route('/phenotypes')
-def phenotypes_page(): return render_template('phenotypes.html')
+def phenotypes_page():
+    return render_template('phenotypes.html')
 @app.route('/pathways')
-def pathways_page(): return render_template('pathways.html')
+def pathways_page():
+    return render_template('pathways.html')
 
 @app.route('/pathway/<pathway_name>')
 def pathway_page(pathway_name):

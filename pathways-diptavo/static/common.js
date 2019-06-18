@@ -26,7 +26,7 @@ if (!String.prototype.includes) {
         queryTokenizer: Bloodhound.tokenizers.whitespace,
         identify: function(sugg) { return sugg.display; }, // maybe allows Bloodhound to `.get()`  objects
         remote: {
-            url: window.model.urlprefix + '/api/autocomplete?query=%QUERY',
+            url: '/api/autocomplete?query=%QUERY',
             wildcard: '%QUERY',
             rateLimitBy: 'throttle',
             rateLimitWait: 500,
