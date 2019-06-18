@@ -14,8 +14,6 @@ $.getJSON('/static/phenotypes.json').then(function(data) {
                 {title: '#Cases', field:'num_cases'},
                 {title: '#Controls', field:'num_controls'},
                 {title: 'Num p<10<sup>-4</sup> Associations', field:'num_sig_assocs', width:200},
-                {title: 'Best Pathway', field:'best_assoc', widthGrow:2},
-                {title: 'Best P-value', field:'best_pval'},
             ],
             tooltipGenerationMode: 'hover', // generate tooltips just-in-time when the data is hovered
             tooltips: function(cell) {
