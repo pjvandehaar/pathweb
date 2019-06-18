@@ -2,3 +2,5 @@ input_data/
 *.db
 pathways.json
 phenotypes.json
+venv
+__pycache__

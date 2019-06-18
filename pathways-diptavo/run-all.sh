@@ -1,13 +1,18 @@
-#!/bin/sh
+#!/bin/bash
 # This script attempts to do all the work to host the site.  It expects to be on Ubuntu 18.04+ but likely also works on 16.04.
+set -euo pipefail # notify of errors rather than ignoring them
 
 if ! [ -e pheno_pathway_assoc.db ]; then
-    echo "either populate input_data and run ./make_sqlite_db.py or copy pheno_pathway_assoc.db here"
-    exit 1
+    if [ -e input_data/phenos-2019may ] && [ -e input_data/GMT_files ]; then
+       python3 make_sqlite3_db.py
+    else
+        echo "either populate input_data and run ./make_sqlite_db.py or copy pheno_pathway_assoc.db here"
+        exit 1
+    fi
 fi
 
 if ! [ -e static/phenotypes.json ] || ! [ -e static/pathways.json ]; then
-    python3 make_tables.py # uses only python builtins and pheno_pathway_assoc.db
+    python3 make_tables.py
 fi
 
 if ! [ -e venv ]; then
@@ -24,14 +29,14 @@ After=network.target
 [Service]
 User=nobody
 Group=nogroup
-WorkingDirectory=/home/pjvandehaar/shawn-phewebish/pathways-diptavo/
-ExecStart=/home/pjvandehaar/shawn-phewebish/pathways-diptavo/venv/bin/gunicorn -k gevent -w4 --bind localhost:8899 serve:app
+WorkingDirectory=$PWD/
+ExecStart=$PWD/venv/bin/gunicorn -k gevent -w4 --bind localhost:8899 serve:app
 [Install]
 WantedBy=multi-user.target
 END
     sudo systemctl daemon-reload
     sudo systemctl start gunicorn-gauss-site
-    sudo systemctl enable gunicorn-guass-site
+    sudo systemctl enable gunicorn-gauss-site
 fi
 
 if ! [ -e /etc/nginx/sites-enabled/gauss-site ]; then
@@ -51,3 +56,4 @@ fi
 
 sudo systemctl restart gunicorn-gauss-site
 
+echo SUCCESS
