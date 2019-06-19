@@ -92,7 +92,10 @@ def pheno_api(phecode):
     matches = list(get_db().execute('SELECT id FROM pheno WHERE phecode=?', (phecode,)))
     if not matches: return abort(404)
     pheno_id = matches[0][0]
-    df = get_df('SELECT name,category,genesettype,pval FROM pheno_pathway_assoc LEFT JOIN pathway ON pheno_pathway_assoc.pathway_id=pathway.id WHERE pheno_id=?', (pheno_id,))
+    df = get_df('SELECT name,category,genesettype,pval,selected_genes_comma FROM pheno_pathway_assoc LEFT JOIN pathway ON pheno_pathway_assoc.pathway_id=pathway.id WHERE pheno_id=?', (pheno_id,))
+    for i in range(len(df['name'])):
+        if not df['pval'][i] <= 1e-5:
+            df['selected_genes_comma'][i] = ''
     return jsonify(dict(assocs=df))
 
 

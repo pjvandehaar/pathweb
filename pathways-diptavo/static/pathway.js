@@ -2,6 +2,7 @@
 
 LocusZoom.TransformationFunctions.set("underscore_breaker", function(x) { return x.replace(/_/g, '_<wbr>'); });
 LocusZoom.TransformationFunctions.set("space_after_comma", function(x) { return x.replace(/,/g, ', '); });
+LocusZoom.TransformationFunctions.set("30words", function(x) { return (x.split(' ').length < 30) ? x : x.split(' ',30).join(' ')+' ...';});
 
 $.getJSON('/api/pathway/'+model.pathway_name).then(function(resp) {
     // fields = phecode, phenostring, category, pval, selected_genes_comma
@@ -37,7 +38,7 @@ $.getJSON('/api/pathway/'+model.pathway_name).then(function(resp) {
         ("<strong>{{phewas:trait_label|htmlescape}}</strong><br>" +
          "Category: <strong>{{phewas:trait_group|htmlescape}}</strong><br>" +
          "P-value: <strong>{{phewas:log_pvalue|logtoscinotation|htmlescape}}</strong><br>" +
-         "Selected Genes: <strong>{{phewas:selected_genes_comma|space_after_comma|htmlescape}}</strong><br>"
+         "{{#if phewas:selected_genes_comma}}Selected Genes: <strong>{{phewas:selected_genes_comma|space_after_comma|30words|htmlescape}}</strong><br>{{/if}}"
         );
     layout.panels[0].data_layers[1].behaviors.onclick = [{action: 'link', href: '/pathway_pheno_assoc/'+model.pathway_name+'/{{phewas:id}}'}];
     layout.panels[0].data_layers[1].y_axis.min_extent = [0, significance_threshold*1.1];
@@ -57,7 +58,8 @@ $.getJSON('/api/pathway/'+model.pathway_name).then(function(resp) {
 
     window._debug.assocs = assocs;
     $(function() {
-        window._debug.plot = LocusZoom.populate("#phewas_plot_container", data_sources, layout);
+        var plot = LocusZoom.populate("#phewas_plot_container", data_sources, layout);
+        window._debug.plot = plot;
     });
 
     $(function() {
@@ -68,13 +70,13 @@ $.getJSON('/api/pathway/'+model.pathway_name).then(function(resp) {
             pagination: 'local',
             paginationSize: 15,
             columns: [
-                {title: 'Category', field:'category'},
-                {title: 'Code', field:'phecode', formatter:'link', formatterParams: { urlPrefix: '/pathway_pheno_assoc/'+model.pathway_name+'/' }},
-                {title: 'Name', field:'phenostring', formatter:'link', formatterParams: { url: function(cell){return '/pathway_pheno_assoc/'+model.pathway_name+'/'+cell.getData().phecode;}}, widthGrow:2},
+                {title: 'Category', field:'category', headerFilter:true},
+                {title: 'Code', field:'phecode', formatter:'link', formatterParams: { urlPrefix: '/pathway_pheno_assoc/'+model.pathway_name+'/' }, headerFilter:true},
+                {title: 'Name', field:'phenostring', formatter:'link', formatterParams: { url: function(cell){return '/pathway_pheno_assoc/'+model.pathway_name+'/'+cell.getData().phecode;}}, headerFilter:true, widthGrow:2},
                 {title: '#Cases', field:'num_cases'},
                 {title: '#Controls', field:'num_controls'},
                 {title: 'P-value', field:'pval'},
-                {title: 'Selected Genes', field:'selected_genes_comma', formatter: function(cell) { return cell.getValue().replace(/,/g, ', ') }, widthGrow:2},
+                {title: 'Selected Genes', field:'selected_genes_comma', formatter: function(cell) { return cell.getValue().replace(/,/g, ', ') }, headerFilter:true, widthGrow:2},
             ],
             data: data,
             initialSort: [{column:'pval', dir:'asc'}],

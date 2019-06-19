@@ -2,9 +2,10 @@
 
 LocusZoom.TransformationFunctions.set("underscore_breaker", function(x) { return x.replace(/_/g, '_<wbr>'); });
 LocusZoom.TransformationFunctions.set("space_after_comma", function(x) { return x.replace(/,/g, ', '); });
+LocusZoom.TransformationFunctions.set("30words", function(x) { return (x.split(' ').length < 30) ? x : x.split(' ',30).join(' ')+' ...';});
 
 $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
-    // fields = genesettype, category, name, pval
+    // fields = genesettype, category, name, pval, selected_genes_comma
     var assocs = resp.assocs;
     assocs.id = assocs.name;
     assocs.trait_label = assocs.name;
@@ -31,11 +32,13 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
     }
 
     layout.panels[0].data_layers[0].offset = significance_threshold;
+    layout.panels[0].data_layers[1].fields.push('phewas:selected_genes_comma');
     layout.panels[0].data_layers[1].fields.push('phewas:genesettype');
     layout.panels[0].data_layers[1].tooltip.html =
         ("<strong>{{phewas:trait_label|htmlescape|underscore_breaker}}</strong><br>" +
          "Category: <strong>{{phewas:genesettype|htmlescape}} / {{phewas:trait_group|htmlescape}}</strong><br>" +
-         "P-value: <strong>{{phewas:log_pvalue|logtoscinotation|htmlescape}}</strong><br>"
+         "P-value: <strong>{{phewas:log_pvalue|logtoscinotation|htmlescape}}</strong><br>" +
+         "{{#if phewas:selected_genes_comma}}Selected Genes: <strong>{{phewas:selected_genes_comma|space_after_comma|30words|htmlescape}}</strong><br>{{/if}}"
         );
     layout.panels[0].data_layers[1].behaviors.onclick = [{action: 'link', href: '/pathway_pheno_assoc/{{phewas:id}}/'+model.phecode}];
     layout.panels[0].data_layers[1].y_axis.min_extent = [0, significance_threshold*1.1];
@@ -80,9 +83,10 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
             pagination: 'local',
             paginationSize: 15,
             columns: [
-                {title: 'Category', field:'category'},
-                {title: 'Pathway', field:'name', formatter:'link', formatterParams: {url:function(cell){return '/pathway_pheno_assoc/'+cell.getValue()+'/'+model.phecode}}, widthGrow:5},
+                {title: 'Category', field:'category', headerFilter:true},
+                {title: 'Pathway', field:'name', formatter:'link', formatterParams: {url:function(cell){return '/pathway_pheno_assoc/'+cell.getValue()+'/'+model.phecode}}, headerFilter:true, widthGrow:3},
                 {title: 'P-value', field:'pval'},
+                {title: 'Selected Genes (for p<1e-5)', field:'selected_genes_comma', formatter: function(cell){return cell.getValue().replace(/,/g,', ')}, headerFilter:true, widthGrow:2},
             ],
             data: data,
             initialSort: [{column:'pval', dir:'asc'}],
