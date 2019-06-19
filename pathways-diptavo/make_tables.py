@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-# phenotypes.json - [{phecode:'008', category:'infectious diseases', best_pval:1e-5, best_assoc:'KEGG_FOO', num_sig_assocs:47}, ...]
-# pathways.json - [{name:'KEGG_FOO', category:'GCP', best_pval:1e-5, best_assoc:'008', num_sig_assocs:24}, ...]
+# phenotypes.json - [{phecode:'008', category:'infectious diseases', num_sig_assocs:47}, ...]
+# pathways.json - [{name:'KEGG_FOO', category:'GCP', num_sig_assocs:24}, ...]
 
 # MAYBE: use sqlite instead of json so that the browser can page?
 
@@ -13,21 +13,19 @@ pathway_by_id = {}
 for row in conn.execute('SELECT * FROM pathway'):
     pathway_by_id[row['id']] = dict(
         name=row['name'], category=row['category'],
-        best_pval=999, best_assoc=None, num_sig_assocs=0)
+        num_sig_assocs=0)
 pheno_by_id = {}
 for row in conn.execute('SELECT * FROM pheno'):
     pheno_by_id[row['id']] = dict(
         phecode=row['phecode'], phenostring=row['phenostring'], category=row['category'],
         num_cases=row['num_cases'], num_controls=row['num_controls'],
-        best_pval=999, best_assoc=None, num_sig_assocs=0)
+        num_sig_assocs=0)
 
 for i, row in enumerate(conn.execute('SELECT * FROM pheno_pathway_assoc')):
     if i % 1_000_000 == 0: print(i)
     pval = row['pval']
     pathway = pathway_by_id[row['pathway_id']]
     pheno = pheno_by_id[row['pheno_id']]
-    if pval < pathway['best_pval']: pathway['best_pval'], pathway['best_assoc'] = pval, pheno['phecode']
-    if pval < pheno['best_pval']:   pheno['best_pval'],   pheno['best_assoc'] =   pval, pathway['name']
     if pval < 1e-4:
         pheno['num_sig_assocs'] += 1
         pathway['num_sig_assocs'] += 1
