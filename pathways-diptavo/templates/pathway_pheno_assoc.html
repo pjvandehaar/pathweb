@@ -22,11 +22,11 @@
           <a href="/pheno/{{ phecode }}" class="btn btn-primary">Go to pheno {{ phecode }}</a>
           <a href="/pathway/{{ pathway_name }}" class="btn btn-primary">Go to pathway {{ pathway_name }}</a>
         </p>
-        <p>Pathway Category: <i>{{ pathway_genesettype }} - {{ pathway_category }}</i></p>
-        <p>Pathway URL: <i><a href="{{ pathway_url }}">{{ pathway_url }}</a></i></p>
-        <p>pval: <i>{{ pval }}</i></p>
-        <p>Pathway Genes: <i>{{ ', '.join(genes) }}</i></p>
-        <p>Selected Genes: <i>{{ ', '.join(selected_genes) }}</i></p>
+        <p>Pathway Category: <b>{{ pathway_genesettype }} - {{ pathway_category }}</b></p>
+        <p>Pathway URL: <b><a href="{{ pathway_url }}">{{ pathway_url }}</a></b></p>
+        <p>pval: <b>{{ pval }}</b></p>
+        <p>Pathway Genes: <b>{{ ', '.join(genes) }}</b></p>
+        <p>Selected Genes: <b>{{ ', '.join(selected_genes) }}</b></p>
     </div>
 </div>
 <div class="row">
