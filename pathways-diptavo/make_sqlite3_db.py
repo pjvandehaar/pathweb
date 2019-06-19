@@ -105,9 +105,9 @@ db_fname = 'pheno_pathway_assoc.db'
 if os.path.exists(db_fname): raise Exception(db_fname + ' already exists, please delete')
 conn = sqlite3.connect(db_fname)
 with conn: # this commits insertions
-    conn.execute('create table pheno (id INTEGER PRIMARY KEY, phecode VARCHAR, phenostring VARCHAR, category VARCHAR, num_cases INT, num_controls INT, num_excluded_controls INT)')
-    conn.execute('create table pathway (id INTEGER PRIMARY KEY, name VARCHAR, url VARCHAR, category VARCHAR, genesettype VARCHAR, genes_comma VARCHAR)')
-    conn.execute('create table pheno_pathway_assoc (id INTEGER PRIMARY KEY, pheno_id INTEGER, pathway_id INTEGER, pval REAL, selected_genes_comma VARCHAR, FOREIGN KEY(pheno_id) REFERENCES pheno(id), FOREIGN KEY(pathway_id) REFERENCES pathway(id))')
+    conn.execute('create table pheno (id INT PRIMARY KEY, phecode TEXT, phenostring TEXT, category TEXT, num_cases INT, num_controls INT, num_excluded_controls INT)')
+    conn.execute('create table pathway (id INT PRIMARY KEY, name TEXT, url TEXT, category TEXT, genesettype TEXT, genes_comma TEXT)')
+    conn.execute('create table pheno_pathway_assoc (id INT PRIMARY KEY, pheno_id INT, pathway_id INT, pval REAL, selected_genes_comma TEXT, FOREIGN KEY(pheno_id) REFERENCES pheno(id), FOREIGN KEY(pathway_id) REFERENCES pathway(id))')
 
     conn.executemany('INSERT INTO pheno VALUES (?,?,?,?,?,?,?)', pheno_row_generator())
     conn.executemany('INSERT INTO pathway VALUES (?,?,?,?,?,?)', pathway_row_generator())
