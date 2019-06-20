@@ -109,7 +109,7 @@ def pheno_pathway_assoc_row_generator(): # doesn't output primary key, let's sql
 db_path = dir_path / 'pheno_pathway_assoc.db'
 db_tmp_path = db_path.with_name(db_path.name+'.tmp')
 if db_tmp_path.exists(): db_tmp_path.unlink()
-conn = sqlite3.connect(db_tmp_path)
+conn = sqlite3.connect(str(db_tmp_path))
 with conn: # this commits insertions
     conn.execute('create table pheno (id INT PRIMARY KEY, phecode TEXT, phenostring TEXT, category TEXT, num_cases INT, num_controls INT, num_excluded_controls INT)')
     conn.execute('create table pathway (id INT PRIMARY KEY, name TEXT, url TEXT, category TEXT, genesettype TEXT, genes_comma TEXT)')

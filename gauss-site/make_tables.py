@@ -9,7 +9,7 @@ dir_path = Path(__file__).absolute().parent
 static_dir_path = dir_path / 'static'
 
 import sqlite3, json
-conn = sqlite3.connect(dir_path / 'pheno_pathway_assoc.db')
+conn = sqlite3.connect(str(dir_path / 'pheno_pathway_assoc.db'))
 conn.row_factory = sqlite3.Row
 
 pathway_by_id = {}
