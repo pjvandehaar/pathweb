@@ -2,10 +2,10 @@
 
 import sqlite3, re, itertools
 from pathlib import Path
+from gzip import GzipFile
+from io import BytesIO
 from flask import g, Flask, jsonify, abort, render_template, request, url_for, redirect
-from flask_compress import Compress
 app = Flask(__name__)
-Compress(app)
 
 app.config['LZJS_VERSION'] = '0.9.0'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 60*5
@@ -176,6 +176,38 @@ def go():
     if not best_suggestion: return redirect(url_for('index_page'))
     return redirect(best_suggestion['url'])
 
+
+class Compress(object):
+    '''A copy of Flask-Compress to avoid its packaging issues'''
+    def __init__(self, app):
+        self.app = app
+        app.config.setdefault('COMPRESS_MIMETYPES', ['text/html', 'text/css', 'text/xml', 'application/json', 'application/javascript'])
+        app.config.setdefault('COMPRESS_LEVEL', 6)
+        app.config.setdefault('COMPRESS_MIN_SIZE', 500)
+        app.after_request(self.after_request)
+    def after_request(self, response):
+        accept_encoding = request.headers.get('Accept-Encoding', '')
+        if (response.mimetype not in self.app.config['COMPRESS_MIMETYPES'] or
+            'gzip' not in accept_encoding.lower() or
+            not 200 <= response.status_code < 300 or
+            (response.content_length is not None and response.content_length < self.app.config['COMPRESS_MIN_SIZE']) or
+            'Content-Encoding' in response.headers):
+            return response
+        response.direct_passthrough = False
+        gzip_content = self.compress(self.app.config['COMPRESS_LEVEL'], response)
+        response.set_data(gzip_content)
+        response.headers['Content-Encoding'] = 'gzip'
+        response.headers['Content-Length'] = response.content_length
+        vary = response.headers.get('Vary')
+        if not vary or 'accept-encoding' not in vary.lower():
+            response.header['Vary'] = (vary+', ' if vary else '') + 'Accept-Encoding'
+        return response
+    def compress(self, level, response):
+        gzip_buffer = BytesIO()
+        with GzipFile(mode='wb', compresslevel=level, fileobj=gzip_buffer) as gzip_file:
+            gzip_file.write(response.get_data())
+        return gzip_buffer.getvalue()
+Compress(app)
 
 
 if __name__ == '__main__':
