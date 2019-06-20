@@ -4,9 +4,12 @@
 # pathways.json - [{name:'KEGG_FOO', category:'GCP', num_sig_assocs:24}, ...]
 
 # MAYBE: use sqlite instead of json so that the browser can page?
+from pathlib import Path
+dir_path = Path(__file__).absolute().parent
+static_dir_path = dir_path / 'static'
 
-import sqlite3, json, os
-conn = sqlite3.connect('pheno_pathway_assoc.db')
+import sqlite3, json
+conn = sqlite3.connect(dir_path / 'pheno_pathway_assoc.db')
 conn.row_factory = sqlite3.Row
 
 pathway_by_id = {}
@@ -31,9 +34,13 @@ for i, row in enumerate(conn.execute('SELECT * FROM pheno_pathway_assoc')):
         pheno['num_sig_assocs'] += 1
         pathway['num_sig_assocs'] += 1
 
-pathway_by_id = {id_:pathway for for id_,pathway in pathway_by_id.items() if not pathway['has_assocs']}
-pheno_by_id = {id_:pheno for for id_,pheno in pheno_by_id.items() if not pheno['has_assocs']}
+pathway_by_id = {id_:pathway for id_,pathway in pathway_by_id.items() if pathway['has_assocs']}
+pheno_by_id = {id_:pheno for id_,pheno in pheno_by_id.items() if pheno['has_assocs']}
 
-if not os.path.exists('static'): os.mkdir('static')
-with open('static/phenotypes.json', 'w') as f: json.dump(list(pheno_by_id.values()), f, separators=(',', ':'))
-with open('static/pathways.json', 'w') as f: json.dump(list(pathway_by_id.values()), f, separators=(',', ':'))
+if not static_dir_path.exists(): static_dir_path.mkdir()
+with open(static_dir_path/'phenotypes.json', 'w') as f:
+    phenos = sorted(pheno_by_id.values(), key=lambda p:p['phecode'])
+    json.dump(phenos, f, separators=(',', ':'))
+with open(static_dir_path/'pathways.json', 'w') as f:
+    pathways = sorted(pathway_by_id.values(), key=lambda p:p['name'])
+    json.dump(pathways, f, separators=(',', ':'))

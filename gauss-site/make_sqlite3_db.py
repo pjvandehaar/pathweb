@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 
-import os, re, glob, gzip, sqlite3, itertools, csv
+import re, gzip, sqlite3, itertools, csv
+from pathlib import Path
+dir_path = Path(__file__).absolute().parent
+input_dir_path = dir_path / 'input_data'
+pheno_dir_path = input_dir_path / 'phenos-2019may'
+gmt_dir_path = input_dir_path / 'GMT_files'
 
 # make list of phenotypes: phecode
-filenames = os.listdir('input_data/phenos-2019may')
+filenames = [path.name for path in pheno_dir_path.iterdir()]
 for fname in filenames:
     assert re.match(r'PheCode_([0-9]{3,4}(?:\.[0-9]{1,2})?)_(Curated|GO).wConditional.txt.gz$', fname), fname
 phecode_and_genesettype = set(re.match(r'PheCode_([0-9]{3,4}(?:\.[0-9]{1,2})?)_(Curated|GO).wConditional.txt.gz$', fname).groups() for fname in filenames)
@@ -15,7 +20,7 @@ for phecode in phecodes:
         assert (phecode, genesettype) in phecode_and_genesettype, (phecode, genesettype)
 print(len(phecodes), 'phecodes')
 phenos = {}
-for row in csv.DictReader(open('input_data/phenotype-colors.csv')):
+for row in csv.DictReader(open(input_dir_path / 'phenotype-colors.csv')):
     def _int(s): num = int(s.replace(',','')); assert num >= 0, s; return num
     phenos[row['PheCode']] = {
         'phenostring': row['Phenotype.Description'],
@@ -31,13 +36,13 @@ assert 2 <= len(set(p['category'] for p in phenos.values())) < 100
 assert genesettypes == {'GO', 'Curated'} # sanity-check
 pathways = {}
 for genesettype in genesettypes:
-    with open('input_data/GMT_files/' + genesettype + '_Subclass.dat') as f:
+    with open(gmt_dir_path / '{}_Subclass.dat'.format(genesettype)) as f:
         for row in csv.DictReader(f, delimiter=' ', fieldnames=['name','url','category']):
             if row['name'] == 'NA': continue
             assert row['name'] not in pathways, row
             pathways[row['name']] = dict(url=row['url'], category=row['category'], genesettype=genesettype)
 print(len(pathways), 'pathways')
-for gmt_filepath in glob.glob('input_data/GMT_files/*.gmt.dat'):
+for gmt_filepath in gmt_dir_path.glob('*.gmt.dat'):
     # note: `.gmt.dat` files appear to just be reformatted versions of the `.gmt` files
     num_matching, num_lines = 0, 0
     with open(gmt_filepath) as f:
@@ -57,11 +62,11 @@ for gmt_filepath in glob.glob('input_data/GMT_files/*.gmt.dat'):
                     pathways[name]['genes'] = genes
     # print(f'{num_matching/num_lines:.2f} {num_matching:4} {num_lines:4} {gmt_filepath}')
     if num_matching == num_lines:
-        assert os.path.basename(gmt_filepath).startswith(('C2', 'C5'))
+        assert gmt_filepath.name.startswith(('C2', 'C5'))
     elif num_matching == 0:
-        assert not os.path.basename(gmt_filepath).startswith(('C2', 'C5'))
+        assert not gmt_filepath.name.startswith(('C2', 'C5'))
     else:
-        raise Exception('some but not all pathway names match in ' + gmt_filepath)
+        raise Exception('some but not all pathway names match in {}'.format(gmt_filepath))
 assert set(d['category'] for d in pathways.values()) == set('KEGG MOLECULAR BIOCARTA BIOLOGICAL_PROC OTHER-CANONICAL CELLULAR CGP REACTOME'.split())
 
 
@@ -84,7 +89,7 @@ def pheno_pathway_assoc_row_generator(): # doesn't output primary key, let's sql
         phecode_id = phecode_ids[phecode]
         filename = 'PheCode_{}_{}.wConditional.txt.gz'.format(phecode, genesettype)
         print(i, filename)
-        with gzip.open('input_data/phenos-2019may/' + filename, 'rt') as f:
+        with gzip.open(pheno_dir_path / filename, 'rt') as f:
             for line in f:
                 name, url, pval_string, _, selected_genes_string, _ = line.split()
                 if pval_string == 'NA' and selected_genes_string == 'NA':
@@ -101,9 +106,10 @@ def pheno_pathway_assoc_row_generator(): # doesn't output primary key, let's sql
                 pval = 1e-6 if pval_string=='0' else float(pval_string)
                 yield (phecode_id, pathway_ids[name], pval, selected_genes_string)
 
-db_fname = 'pheno_pathway_assoc.db'
-if os.path.exists(db_fname): raise Exception(db_fname + ' already exists, please delete')
-conn = sqlite3.connect(db_fname)
+db_path = dir_path / 'pheno_pathway_assoc.db'
+db_tmp_path = db_path.with_name(db_path.name+'.tmp')
+if db_tmp_path.exists(): db_tmp_path.unlink()
+conn = sqlite3.connect(db_tmp_path)
 with conn: # this commits insertions
     conn.execute('create table pheno (id INT PRIMARY KEY, phecode TEXT, phenostring TEXT, category TEXT, num_cases INT, num_controls INT, num_excluded_controls INT)')
     conn.execute('create table pathway (id INT PRIMARY KEY, name TEXT, url TEXT, category TEXT, genesettype TEXT, genes_comma TEXT)')
@@ -115,3 +121,6 @@ with conn: # this commits insertions
 
     conn.execute('CREATE INDEX idx_assoc_pheno_id ON pheno_pathway_assoc (pheno_id)')
     conn.execute('CREATE INDEX idx_assoc_pathway_id ON pheno_pathway_assoc (pathway_id)')
+
+if db_path.exists(): db_path.unlink()
+db_tmp_path.rename(db_path)

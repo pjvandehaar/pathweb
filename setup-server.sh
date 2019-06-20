@@ -3,19 +3,18 @@
 set -euo pipefail # notify of errors rather than ignoring them
 _readlinkf() { perl -MCwd -le 'print Cwd::abs_path shift' "$1"; }
 cd "$(dirname "$(_readlinkf "${BASH_SOURCE[0]}")")"
-cd gauss-site
 
-if ! [ -e pheno_pathway_assoc.db ]; then
-    if [ -e input_data/phenos-2019may ] && [ -e input_data/GMT_files ]; then
-       python3 make_sqlite3_db.py
+if ! [ -e gauss-site/pheno_pathway_assoc.db ]; then
+    if [ -e gauss-site/input_data/phenos-2019may ] && [ -e input_data/GMT_files ]; then
+       python3 gauss-site/make_sqlite3_db.py
     else
         echo "either populate input_data and run ./make_sqlite_db.py or copy pheno_pathway_assoc.db here"
         exit 1
     fi
 fi
 
-if ! [ -e static/phenotypes.json ] || ! [ -e static/pathways.json ]; then
-    python3 make_tables.py
+if ! [ -e gauss-site/static/phenotypes.json ] || ! [ -e gauss-site/static/pathways.json ]; then
+    python3 gauss-site/make_tables.py
 fi
 
 if ! [ -e venv ]; then
@@ -32,7 +31,7 @@ After=network.target
 [Service]
 User=nobody
 Group=nogroup
-WorkingDirectory=$PWD/
+WorkingDirectory=$PWD/gauss-site/
 ExecStart=$PWD/venv/bin/gunicorn -k gevent -w4 --bind localhost:8899 serve:app
 [Install]
 WantedBy=multi-user.target

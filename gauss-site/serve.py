@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sqlite3, re, itertools
+from pathlib import Path
 from flask import g, Flask, jsonify, abort, render_template, request, url_for, redirect
 from flask_compress import Compress
 app = Flask(__name__)
@@ -9,7 +10,8 @@ Compress(app)
 app.config['LZJS_VERSION'] = '0.9.0'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 60*5
 
-DATABASE = 'pheno_pathway_assoc.db'
+dir_path = Path(__file__).absolute().parent
+DATABASE = dir_path / 'pheno_pathway_assoc.db'
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
