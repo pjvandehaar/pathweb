@@ -13,10 +13,10 @@
 
 2. run `pip3 install -r requirments.txt`
 
-3. run `./make_sqlite3_db.py` to produce `pheno_pathway_assoc.db`
+3. run `python3 gauss-site/make_sqlite3_db.py` to produce `gauss-site/pheno_pathway_assoc.db`
 
-4. run `./make_tables.py` to produce `static/phenotypes.json` and `static/pathways.json`
+4. run `python3 gauss-site/make_tables.py` to produce `gauss-site/static/phenotypes.json` and `gauss-site/static/pathways.json`
 
 5. run the server using one of these:
-   - `./serve.py` (insecure and slow for development/debugging)
-   - `gunicorn serve:app -k gevent -w4 --bind 0.0.0.0:8000` (fast for production)
+   - `python3 gauss-site/serve.py` (insecure and slow for development/debugging)
+   - `cd gauss-site && gunicorn serve:app -k gevent -w4 --bind 0.0.0.0:8000` (fast for production)

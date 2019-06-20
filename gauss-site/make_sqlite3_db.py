@@ -3,7 +3,7 @@
 import re, gzip, sqlite3, itertools, csv
 from pathlib import Path
 dir_path = Path(__file__).absolute().parent
-input_dir_path = dir_path / 'input_data'
+input_dir_path = dir_path.parent / 'input_data'
 pheno_dir_path = input_dir_path / 'phenos-2019may'
 gmt_dir_path = input_dir_path / 'GMT_files'
 
