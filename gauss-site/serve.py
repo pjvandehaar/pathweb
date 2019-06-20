@@ -200,7 +200,7 @@ class Compress(object):
         response.headers['Content-Length'] = response.content_length
         vary = response.headers.get('Vary')
         if not vary or 'accept-encoding' not in vary.lower():
-            response.header['Vary'] = (vary+', ' if vary else '') + 'Accept-Encoding'
+            response.headers['Vary'] = (vary+', ' if vary else '') + 'Accept-Encoding'
         return response
     def compress(self, level, response):
         gzip_buffer = BytesIO()
