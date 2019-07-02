@@ -91,6 +91,12 @@ function dataframe_to_objects(df) {
 }
 
 
+// Tabulator formatters
+Tabulator.prototype.extendModule("format", "formatters", {
+    comma_fmt: function(cell) { return cell.getValue().toLocaleString(); },
+    '2digit_fmt': function(cell) { var x=cell.getValue(); return (x>=.1)? x.toFixed(2) : (x>=.01)? x.toFixed(3) : x.toExponential(1); },
+})
+
 // functions used by many pages
 function tabulator_tooltip_maker(cell) {
     // this function attempts to check whether an ellipsis ('...') is hiding part of the data.

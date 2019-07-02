@@ -85,7 +85,7 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
             columns: [
                 {title: 'Category', field:'category', headerFilter:true},
                 {title: 'Pathway', field:'name', formatter:'link', formatterParams: {url:function(cell){return '/pathway_pheno_assoc/'+cell.getValue()+'/'+model.phecode}}, headerFilter:true, widthGrow:3},
-                {title: 'P-value', field:'pval'},
+                {title: 'P-value', field:'pval', formatter:'2digit_fmt'},
                 {title: 'Selected Genes (for p<1e-5)', field:'selected_genes_comma', formatter: function(cell){return cell.getValue().replace(/,/g,', ')}, headerFilter:true, widthGrow:2},
             ],
             data: data,
