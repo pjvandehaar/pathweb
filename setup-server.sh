@@ -45,6 +45,7 @@ if ! [ -e /etc/nginx/sites-enabled/gauss-site ]; then
     sudo tee /etc/nginx/sites-available/gauss-site >/dev/null <<END
 server {
     listen 80;
+    server_name ukb-pathway.leelabsg.org;
     location / {
         include proxy_params;
         proxy_pass http://localhost:8899;
