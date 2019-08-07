@@ -67,16 +67,33 @@ def pathway_pheno_assoc_page(pathway_name, phecode):
     matches = list(get_db().execute('SELECT id,url,category,genesettype,genes_comma FROM pathway WHERE name = ?', (pathway_name,)))
     if not matches: return abort(404)
     pathway_id, pathway_url, pathway_category, pathway_genesettype = matches[0][:-1]
-    genes = matches[0][-1].split(',')
+    pathway_genes = set(matches[0][-1].split(','))
 
     matches = list(get_db().execute('SELECT pval,selected_genes_comma FROM pheno_pathway_assoc LEFT JOIN pathway ON pheno_pathway_assoc.pathway_id=pathway.id WHERE pheno_id=? AND pathway_id=?', (pheno_id, pathway_id)))
     if not matches: return abort(404)
-    pval, selected_genes = matches[0][0], matches[0][1].split(',')
+    pval, selected_genes = matches[0][0], set(matches[0][1].split(','))
+
+    genes_db = getattr(g, '_genes_db', None)
+    if genes_db is None:
+        genes_db = g._genes_db = sqlite3.connect('gene.db')
+        genes_db.row_factory = sqlite3.Row
+    # The table `pheno_gene` omits rows with pval=None.
+    # However, we want the data from `gene` for all genes in this pathway, even if pval=None.
+    # So we query for all the genes, and then LEFT JOIN against the pheno-gene associations for the current phenotype.
+    # This yields all the genes, including some with pval=None.
+    matches = list(genes_db.execute('SELECT gene.name,chrom,num_snps,pval FROM gene '
+                                    'LEFT JOIN (SELECT gene_id,pval FROM pheno '
+                                    '           LEFT JOIN pheno_gene ON pheno.id=pheno_id '
+                                    '           WHERE phecode=?) ON gene.id=gene_id',
+                                    (phecode,)))
+    if not matches: return abort(404)
+    genes = [dict(row) for row in matches if row['name'] in pathway_genes]
+    for gene in genes: gene['selected'] = (gene['name'] in selected_genes)
+
     return render_template('pathway_pheno_assoc.html',
                            phecode=phecode, phenostring=phenostring, pheno_category=pheno_category,
                            pathway_name=pathway_name, pathway_url=pathway_url, pathway_category=pathway_category, pathway_genesettype=pathway_genesettype,
-                           pval=pval, genes=genes, selected_genes=selected_genes)
-
+                           pval=pval, genes=genes)
 
 @app.route('/api/pathway/<pathway_name>')
 def pathway_api(pathway_name):

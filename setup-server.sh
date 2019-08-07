@@ -5,10 +5,19 @@ _readlinkf() { perl -MCwd -le 'print Cwd::abs_path shift' "$1"; }
 cd "$(dirname "$(_readlinkf "${BASH_SOURCE[0]}")")"
 
 if ! [ -e gauss-site/pheno_pathway_assoc.db ]; then
-    if [ -e input_data/phenos-2019may ] && [ -e input_data/GMT_files ]; then
+    if [ -e input_data/pathways ]; then
        python3 gauss-site/make_sqlite3_db.py
     else
-        echo "either populate input_data and run ./make_sqlite_db.py or copy pheno_pathway_assoc.db here"
+        echo "either populate input_data/pathways/ and run ./make_sqlite_db.py or copy pheno_pathway_assoc.db here"
+        exit 1
+    fi
+fi
+
+if ! [ -e gauss-site/gene.db ]; then
+    if [ -e input_data/genes ]; then
+       python3 gauss-site/make_gene_sqlite3_db.py
+    else
+        echo "either populate input_data/genes/ and run ./make_gene_sqlite_db.py or copy gene.db here"
         exit 1
     fi
 fi

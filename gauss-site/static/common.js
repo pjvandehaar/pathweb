@@ -95,6 +95,7 @@ function dataframe_to_objects(df) {
 Tabulator.prototype.extendModule("format", "formatters", {
     comma_fmt: function(cell) { return cell.getValue().toLocaleString(); },
     '2digit_fmt': function(cell) { var x=cell.getValue(); return (x>=.1)? x.toFixed(2) : (x>=.01)? x.toFixed(3) : x.toExponential(1); },
+    '2digit_fmt_nullable': function(cell) { var x=cell.getValue(); return (x==null)? 'n/a' : (x>=.1)? x.toFixed(2) : (x>=.01)? x.toFixed(3) : x.toExponential(1); },
 })
 
 // functions used by many pages

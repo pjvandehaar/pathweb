@@ -4,7 +4,7 @@ import re, gzip, sqlite3, itertools, csv
 from pathlib import Path
 dir_path = Path(__file__).absolute().parent
 input_dir_path = dir_path.parent / 'input_data'
-pheno_dir_path = input_dir_path / 'phenos-2019may'
+pheno_dir_path = input_dir_path / 'pathways'
 gmt_dir_path = input_dir_path / 'GMT_files'
 
 # make list of phenotypes: phecode
@@ -91,7 +91,7 @@ def pheno_pathway_assoc_row_generator(): # doesn't output primary key, let's sql
         print(i, filename)
         with gzip.open(pheno_dir_path / filename, 'rt') as f:
             for line in f:
-                name, url, pval_string, _, selected_genes_string, _ = line.split()
+                name, url, pval_string, selected_genes_string = line.split()
                 if pval_string == 'NA' and selected_genes_string == 'NA':
                     # I don't know why these lines exist but there's a lot of them.
                     continue

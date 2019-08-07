@@ -5,9 +5,10 @@
 <script type="text/javascript">
   window.model.phecode = {{ phecode|tojson(separators=(',',':'))|safe }};
   window.model.pathway_name = {{ pathway_name|tojson(separators=(',',':'))|safe }};
+  window.model.genes = {{ genes|tojson(separators=(',',':'))|safe }};
 </script>
 
-{# <script src="{{ url_for('.static', filename='pathway_pheno_assoc.js') }}" type="text/javascript"></script> #}
+<script src="{{ url_for('.static', filename='pathway_pheno_assoc.js') }}" type="text/javascript"></script>
 {% endblock %}
 
 
@@ -22,8 +23,7 @@
         <p>Pathway Category: <b>{{ pathway_genesettype }} - {{ pathway_category }}</b></p>
         <p>Pathway URL: <b><a href="{{ pathway_url }}">{{ pathway_url }}</a></b></p>
         <p>pval: <b>{{ pval }}</b></p>
-        <p>Pathway Genes: <b>{{ ', '.join(genes) }}</b></p>
-        <p>Selected Genes: <b>{{ ', '.join(selected_genes) }}</b></p>
+        <div id="table" class="table-striped table-bordered"></div>
     </div>
 </div>
 {% endblock %}

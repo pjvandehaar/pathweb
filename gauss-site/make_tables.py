@@ -40,7 +40,7 @@ pheno_by_id = {id_:pheno for id_,pheno in pheno_by_id.items() if pheno['has_asso
 if not static_dir_path.exists(): static_dir_path.mkdir()
 with open(static_dir_path/'phenotypes.json', 'w') as f:
     phenos = sorted(pheno_by_id.values(), key=lambda p:p['phecode'])
-    json.dump(phenos, f, separators=(',', ':'))
+    json.dump(phenos, f, separators=(',', ':'), indent=0)
 with open(static_dir_path/'pathways.json', 'w') as f:
     pathways = sorted(pathway_by_id.values(), key=lambda p:p['name'])
-    json.dump(pathways, f, separators=(',', ':'))
+    json.dump(pathways, f, separators=(',', ':'), indent=0)

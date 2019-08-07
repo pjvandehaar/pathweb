@@ -1,4 +1,5 @@
-phenos-2019may/
+input_data/genes/
+input_data/pathways/
 *.db
 venv
 __pycache__
