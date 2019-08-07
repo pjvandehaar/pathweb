@@ -6,7 +6,7 @@ $(function() {
         //height: 600, // setting height lets Tabulator's VirtualDOM load really fast but makes scrolling awkward
         layout: 'fitColumns',
         pagination: 'local',
-        paginationSize: 15,
+        paginationSize: 100,
         columns: [
             {title: 'Gene Name', field:'name', headerFilter:true},
             {title: 'Chromosome', field:'chrom', headerFilter:true, headerFilterFunc:'='},
