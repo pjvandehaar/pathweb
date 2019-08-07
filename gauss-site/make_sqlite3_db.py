@@ -111,9 +111,29 @@ db_tmp_path = db_path.with_name(db_path.name+'.tmp')
 if db_tmp_path.exists(): db_tmp_path.unlink()
 conn = sqlite3.connect(str(db_tmp_path))
 with conn: # this commits insertions
-    conn.execute('create table pheno (id INT PRIMARY KEY, phecode TEXT, phenostring TEXT, category TEXT, num_cases INT, num_controls INT, num_excluded_controls INT)')
-    conn.execute('create table pathway (id INT PRIMARY KEY, name TEXT, url TEXT, category TEXT, genesettype TEXT, genes_comma TEXT)')
-    conn.execute('create table pheno_pathway_assoc (id INT PRIMARY KEY, pheno_id INT, pathway_id INT, pval REAL, selected_genes_comma TEXT, FOREIGN KEY(pheno_id) REFERENCES pheno(id), FOREIGN KEY(pathway_id) REFERENCES pathway(id))')
+    conn.execute('create table pheno ('
+                 'id INT PRIMARY KEY,'
+                 'phecode TEXT,'
+                 'phenostring TEXT,'
+                 'category TEXT,'
+                 'num_cases INT,'
+                 'num_controls INT,'
+                 'num_excluded_controls INT)')
+    conn.execute('create table pathway ('
+                 'id INT PRIMARY KEY,'
+                 'name TEXT,'
+                 'url TEXT,'
+                 'category TEXT,'
+                 'genesettype TEXT,'
+                 'genes_comma TEXT)')
+    conn.execute('create table pheno_pathway_assoc ('
+                 'id INT PRIMARY KEY,'
+                 'pheno_id INT,'
+                 'pathway_id INT,'
+                 'pval REAL,'
+                 'selected_genes_comma TEXT,'
+                 'FOREIGN KEY(pheno_id) REFERENCES pheno(id),'
+                 'FOREIGN KEY(pathway_id) REFERENCES pathway(id))')
 
     conn.executemany('INSERT INTO pheno VALUES (?,?,?,?,?,?,?)', pheno_row_generator())
     conn.executemany('INSERT INTO pathway VALUES (?,?,?,?,?,?)', pathway_row_generator())
