@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# This script creates `phenotypes.json` and `pathways.json`. Their formats are:
 # phenotypes.json - [{phecode:'008', category:'infectious diseases', num_sig_assocs:47}, ...]
 # pathways.json - [{name:'KEGG_FOO', category:'GCP', num_sig_assocs:24}, ...]
 

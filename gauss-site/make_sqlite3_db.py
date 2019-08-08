@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# This script creates `pheno_pathway_assoc.db` using data in `input_data/pathways`
+
 import re, gzip, sqlite3, itertools, csv
 from pathlib import Path
 dir_path = Path(__file__).absolute().parent

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 '''
-This script creates `gene.db` which contains the pvalue for each (phenotype, gene) pair.
+This script creates `gene.db` using data from `input_data/`.
+`gene.db` contains the pvalue for each (phenotype, gene) pair and it includes chromosome and num_snps for each gene.
 It's data populates the table at /pathway_pheno_assoc/GO_ODORANT_BINDING/079.1 .
-It does not contain information about which genes are selected for each (phenotype, pathway) pair.
+Information about which genes are selected for each (phenotype, pathway) pair is in `pheno_pathway_assoc.db`, not `gene.db`
 '''
 
 import sqlite3, gzip, csv, os, itertools, json

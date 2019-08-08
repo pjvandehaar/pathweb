@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# This script runs the Flask webserver.
+# It can also be used by gunicorn via `gunicorn serve:app`.
+
 import sqlite3, re, itertools
 from pathlib import Path
 from gzip import GzipFile

@@ -1,6 +1,9 @@
 #!/bin/bash
+
 # This script attempts to do all the work to host the site.  It expects to be on Ubuntu 18.04+ but likely also works on 16.04.
-set -euo pipefail # notify of errors rather than ignoring them
+
+set -euo pipefail # exit if an error occurs rather than ignoring it
+# Move to the directory containing this script (to allow relative paths)
 _readlinkf() { perl -MCwd -le 'print Cwd::abs_path shift' "$1"; }
 cd "$(dirname "$(_readlinkf "${BASH_SOURCE[0]}")")"
 
