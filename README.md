@@ -30,7 +30,7 @@ If you are on an Ubuntu server you can simply run `./setup-server.sh` which shou
 
 If you are on a laptop or otherwise don't want to use that script, then:
 
-1. run `pip3 install -r requirments.txt` (which may require you to set up and activate a `virtualenv` or `miniconda`)
+1. run `pip3 install -r requirments.txt` (which may require you to set up and activate a `virtualenv` or `miniconda` or use `sudo`)
 
 2. run `python3 gauss-site/make_sqlite3_db.py` to produce `gauss-site/pheno_pathway_assoc.db`.
 
