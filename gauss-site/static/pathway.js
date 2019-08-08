@@ -12,7 +12,7 @@ $.getJSON('/api/pathway/'+model.pathway_name).then(function(resp) {
     assocs.log_pvalue = assocs.pval.map(function(p) { return -Math.log10(Math.max(1e-6, p)); });
     assocs.trait_group = assocs.category;
 
-    var significance_threshold = -Math.log10(0.05 / assocs.id.length);
+    var significance_threshold = -Math.log10(5e-6); // Diptavo said to use 5e-6 //-Math.log10(0.05/assocs.id.length);
     var best_nlpval = d3.max(assocs.log_pvalue);
 
     var data_sources = new LocusZoom.DataSources().add('phewas', ['StaticJSON', assocs]);
