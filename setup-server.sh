@@ -4,9 +4,10 @@
 
 set -euo pipefail # exit if an error occurs rather than ignoring it
 # Move to the directory containing this script (to allow relative paths)
-_readlinkf() { perl -MCwd -le 'print Cwd::abs_path shift' "$1"; }
-cd "$(dirname "$(_readlinkf "${BASH_SOURCE[0]}")")"
+_readlinkf() { perl -MCwd -le 'print Cwd::abs_path shift' "$1"; } # cross-platform version of `readlink -f`
+cd "$(dirname "$(_readlinkf "${BASH_SOURCE[0]}")")" # `cd` to the directory holding this script (which is the root of this git repo)
 
+# Check that needed data is present.  If a missing file can be generated from other files, do that.
 if ! [ -e gauss-site/pheno_pathway_assoc.db ]; then
     if [ -e input_data/pathways ]; then
        python3 gauss-site/make_sqlite3_db.py
@@ -29,12 +30,14 @@ if ! [ -e gauss-site/static/phenotypes.json ] || ! [ -e gauss-site/static/pathwa
     python3 gauss-site/make_tables.py
 fi
 
+# Install dependencies
 if ! [ -e venv ]; then
     sudo apt update && sudo apt install python3-pip python3-venv nginx
     python3 -m venv venv
     ./venv/bin/pip3 install -r requirements.txt
 fi
 
+# Make a Systemd Unit file that runs gunicorn to host the site (available only locally on this machine)
 if ! [ -e /etc/systemd/system/gunicorn-gauss-site.service ]; then
     sudo tee /etc/systemd/system/gunicorn-gauss-site.service >/dev/null <<END
 [Unit]
@@ -53,6 +56,7 @@ END
     sudo systemctl enable gunicorn-gauss-site
 fi
 
+# Make nginx reverse-proxy the local-only gunicorn port to an externally-accessible subdomain
 if ! [ -e /etc/nginx/sites-enabled/gauss-site ]; then
     sudo tee /etc/nginx/sites-available/gauss-site >/dev/null <<END
 server {
@@ -69,6 +73,7 @@ END
     sudo systemctl restart nginx
 fi
 
+# Restart gunicorn to apply any changes
 sudo systemctl restart gunicorn-gauss-site
 
 echo SUCCESS
