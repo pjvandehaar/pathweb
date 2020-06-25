@@ -3,11 +3,11 @@
 # This script runs the Flask webserver.
 # It can also be used by gunicorn via `gunicorn serve:app`.
 
-import sqlite3, re, itertools
+import sqlite3, re, itertools, csv, io, contextlib
 from pathlib import Path
 from gzip import GzipFile
 from io import BytesIO
-from flask import g, Flask, jsonify, abort, render_template, request, url_for, redirect
+from flask import g, Flask, jsonify, abort, render_template, request, url_for, redirect, make_response
 app = Flask(__name__)
 
 app.config['LZJS_VERSION'] = '0.9.0'
@@ -25,12 +25,15 @@ def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
-def get_df(query, args=()):
-    '''get a dataframe (eg, `{phecode:['008','008.5'],pval:[0.3,0.01]}`) from the database'''
+def get_colnames_and_rows(query, args=()):
     cur = get_db().execute(query, args)
     colnames = [x[0] for x in cur.description]
     rows = cur.fetchall()
     cur.close()
+    return (colnames, rows)
+def get_df(query, args=()):
+    '''get a dataframe (eg, `{phecode:['008','008.5'],pval:[0.3,0.01]}`) from the database'''
+    colnames, rows = get_colnames_and_rows(query, args)
     return {colname: [row[i] for row in rows] for i, colname in enumerate(colnames)}
 
 
@@ -119,6 +122,25 @@ def pheno_api(phecode):
         if not df['pval'][i] <= 1e-5:
             df['selected_genes_comma'][i] = ''
     return jsonify(dict(assocs=df))
+
+@app.route('/download/pheno/<phecode>')
+def pheno_download(phecode):
+    matches = list(get_db().execute('SELECT id FROM pheno WHERE phecode=?', (phecode,)))
+    if not matches: return abort(404)
+    pheno_id = matches[0][0]
+
+    colnames, rows = get_colnames_and_rows('SELECT name,category,genesettype,pval,selected_genes_comma FROM pheno_pathway_assoc LEFT JOIN pathway ON pheno_pathway_assoc.pathway_id=pathway.id WHERE pheno_id=?', (pheno_id,))
+
+    with contextlib.closing(io.StringIO()) as csv_stringio:
+        csv_writer = csv.writer(csv_stringio)
+        csv_writer.writerow([(name if name != 'selected_genes_comma' else 'selected_genes') for name in  colnames])
+        csv_writer.writerows(rows)
+        csv_string = csv_stringio.getvalue()
+
+    response = make_response(csv_string)
+    response.headers["Content-Disposition"] = "attachment; filename={}.csv".format(phecode.replace(' ','_'))
+    response.headers["Content-type"] = "text/csv"
+    return response
 
 
 class Autocompleter:
