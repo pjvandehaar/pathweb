@@ -4,7 +4,18 @@
 <div class="row">
     <div class="col-xs-12 col-sm-offset-1 col-sm-10 col-md-8 col-lg-6">
         <h1>About</h1>
-        <p>(add content)</p>
+        <p>PathWeb displays results for associations between over 10,000 pathways (gene-sets) and phenotypes derived from ICD billing codes of White British participants of the UK Biobank. GWAS summary-statistics obtained using <a href="https://pubmed.ncbi.nlm.nih.gov/30104761/">SAIGE</a> for 1,403 binary phenotypes derived from ICD billing codes have been used in the analysis here. The single-variant summary statistics are available on <a href="http://pheweb.sph.umich.edu/SAIGE-UKB/">PheWeb</a>. The association analysis between a pathway and the summary statistics of a phenotype was done using <a href="https://www.biorxiv.org/content/10.1101/799791v1">GAUSS</a> which produces a p-value for the association between the phenotype and the pathway (gene-set) and additionally extracts a 'core subset' (CS) genes within the gene-set which drives the association.<p>
+	<p>We used two categories of pathways in our analysis from Molecular Signatures database (<a href="https://www.gsea-msigdb.org/gsea/msigdb/index.jsp">MSigDB</a> v6.2): <p> 
+	<p><b> Curated pathways (C2) </b> including KEGG, BioCarta (BIOCARTA), REACTOME and chemical genetic perturbations (CGP) and other canonical pathways (OTHER_CANONICAL)<p>
+	<p><b> GO pathways (C5) </b> including Biological processes (BIOLOGICAL_PROC), molecular processes (MOLECULAR), cellular processes (CELLULAR).<p>
+	<br>
+	<p>In the current version, we have displayed <b>resampling p-values</b> for GAUSS using a million resampling iterations. Any p-value < 10<sup>-6</sup> is collapsed to a p-value of 10<sup>-6</sup>. We are working on making the p-values using generalized pareto distribution (GPD) for all phenotypes and gene-sets available. Please stay tuned !!<p>
+	<p>If you use the results from the analysis please cite the manuscript  preprint on <a href="https://www.biorxiv.org/content/10.1101/799791v1">bioRXiv</a><p>
+	<p>GAUSS R-package and instruction manual is available on <a href="https://github.com/diptavo/GAUSS">GitHub</a>. We will also make the results displayed here freely available (download-able) in the near future.
+	<br>
+	<p>This site was built with modifictions from the <a href="https://github.com/statgen/pheweb/">PheWeb package</a></p>
+	<p>For any questions regarding the results or methods please contact <a href="mailto:diptavo@umich.edu"> Diptavo Dutta </a>. For any questions regarding the display of this site please contact <a href="mailto:pjvh@umich.edu"> Peter Vandehaar </a>.<p>
+
     </div>
 </div>
 {% endblock %}
