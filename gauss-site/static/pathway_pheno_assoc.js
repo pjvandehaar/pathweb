@@ -16,8 +16,11 @@ $(function() {
                 return a-b;
             }}, // TODO: treat `n/a` as 1.1 in sorting
             {title: '#SNPs', field:'num_snps', formatter:'comma_fmt'},
-            {title: 'Selected by Method', field:'selected', headerFilter:true, },
+            {title: 'Selected by Method', field:'selected', headerFilter:true},
         ],
+	initialHeaderFilter: [
+	    {field: 'selected', value:'true'},
+	],
         rowFormatter: function(row) {
             if (row.getData().selected) {
                 row.getElement().style.fontWeight = 'bold';
