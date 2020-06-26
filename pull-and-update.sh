@@ -10,7 +10,7 @@ cd "$(dirname "$(_readlinkf "${BASH_SOURCE[0]}")")"
 git pull --ff-only
 echo
 
-sudo systemctl restart gunicorn-gauss-site
+sudo systemctl restart gunicorn-pathweb
 echo
 
 echo SUCCESSFUL UPDATE

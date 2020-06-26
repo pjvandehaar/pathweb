@@ -8,26 +8,26 @@ _readlinkf() { perl -MCwd -le 'print Cwd::abs_path shift' "$1"; } # cross-platfo
 cd "$(dirname "$(_readlinkf "${BASH_SOURCE[0]}")")" # `cd` to the directory holding this script (which is the root of this git repo)
 
 # Check that needed data is present.  If a missing file can be generated from other files, do that.
-if ! [ -e gauss-site/pheno_pathway_assoc.db ]; then
+if ! [ -e pathweb/pheno_pathway_assoc.db ]; then
     if [ -e input_data/pathways ]; then
-       python3 gauss-site/make_sqlite3_db.py
+       python3 pathweb/make_sqlite3_db.py
     else
         echo "either populate input_data/pathways/ and run ./make_sqlite_db.py or copy pheno_pathway_assoc.db here"
         exit 1
     fi
 fi
 
-if ! [ -e gauss-site/gene.db ]; then
+if ! [ -e pathweb/gene.db ]; then
     if [ -e input_data/genes ]; then
-       python3 gauss-site/make_gene_sqlite3_db.py
+       python3 pathweb/make_gene_sqlite3_db.py
     else
         echo "either populate input_data/genes/ and run ./make_gene_sqlite_db.py or copy gene.db here"
         exit 1
     fi
 fi
 
-if ! [ -e gauss-site/static/phenotypes.json ] || ! [ -e gauss-site/static/pathways.json ]; then
-    python3 gauss-site/make_tables.py
+if ! [ -e pathweb/static/phenotypes.json ] || ! [ -e pathweb/static/pathways.json ]; then
+    python3 pathweb/make_tables.py
 fi
 
 # Install dependencies
@@ -38,27 +38,27 @@ if ! [ -e venv ]; then
 fi
 
 # Make a Systemd Unit file that runs gunicorn to host the site (available only locally on this machine)
-if ! [ -e /etc/systemd/system/gunicorn-gauss-site.service ]; then
-    sudo tee /etc/systemd/system/gunicorn-gauss-site.service >/dev/null <<END
+if ! [ -e /etc/systemd/system/gunicorn-pathweb.service ]; then
+    sudo tee /etc/systemd/system/gunicorn-pathweb.service >/dev/null <<END
 [Unit]
-Description=Gunicorn instance to serve gauss-site
+Description=Gunicorn instance to serve pathweb
 After=network.target
 [Service]
 User=nobody
 Group=nogroup
-WorkingDirectory=$PWD/gauss-site/
+WorkingDirectory=$PWD/pathweb/
 ExecStart=$PWD/venv/bin/gunicorn -k gevent -w4 --bind localhost:8899 serve:app
 [Install]
 WantedBy=multi-user.target
 END
     sudo systemctl daemon-reload
-    sudo systemctl start gunicorn-gauss-site
-    sudo systemctl enable gunicorn-gauss-site
+    sudo systemctl start gunicorn-pathweb
+    sudo systemctl enable gunicorn-pathweb
 fi
 
 # Make nginx reverse-proxy the local-only gunicorn port to an externally-accessible subdomain
-if ! [ -e /etc/nginx/sites-enabled/gauss-site ]; then
-    sudo tee /etc/nginx/sites-available/gauss-site >/dev/null <<END
+if ! [ -e /etc/nginx/sites-enabled/pathweb ]; then
+    sudo tee /etc/nginx/sites-available/pathweb >/dev/null <<END
 server {
     listen 80;
     server_name ukb-pathway.leelabsg.org;
@@ -68,12 +68,12 @@ server {
     }
 }
 END
-    sudo ln -s /etc/nginx/sites-available/gauss-site /etc/nginx/sites-enabled/
+    sudo ln -s /etc/nginx/sites-available/pathweb /etc/nginx/sites-enabled/
     sudo nginx -t # check that the file is good
     sudo systemctl restart nginx
 fi
 
 # Restart gunicorn to apply any changes
-sudo systemctl restart gunicorn-gauss-site
+sudo systemctl restart gunicorn-pathweb
 
 echo SUCCESS

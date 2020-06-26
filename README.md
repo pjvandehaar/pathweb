@@ -21,8 +21,8 @@ The files in `input_data/genes/` contain the associations between each phenotype
 
 These files can be collected from Flux by running:
 
-    mkdir -p ~/gauss-site-data/pathways/ && cd /scratch/leeshawn_fluxod/diptavo/1000G/RESULTS/ && find . -name 'PheCode_*[dO].wConditional.txt'|sort -n|while read f; do echo $f; cat $f|cut -d' ' -f1-3,5|tr " " "\t"|gzip - > ~/gauss-site-data/pathways/$(basename $f).gz; done
-    mkdir -p ~/gauss-site-data/genes/ && cd /scratch/leeshawn_fluxod/diptavo/1000G/RESULTS/ && find . -name 'OUTF_PheCode_*.txt'|sort -n|while read f; do echo $f; cat $f|perl -nae 'print "$F[0]\t";if ($F[4] eq "NA") {print("NA\n")} else {printf("%.2e\n",$F[4])}' | gzip - > ~/gauss-site-data/genes/$(basename $f).gz; done
+    mkdir -p ~/pathweb-data/pathways/ && cd /scratch/leeshawn_fluxod/diptavo/1000G/RESULTS/ && find . -name 'PheCode_*[dO].wConditional.txt'|sort -n|while read f; do echo $f; cat $f|cut -d' ' -f1-3,5|tr " " "\t"|gzip - > ~/pathweb-data/pathways/$(basename $f).gz; done
+    mkdir -p ~/pathweb-data/genes/ && cd /scratch/leeshawn_fluxod/diptavo/1000G/RESULTS/ && find . -name 'OUTF_PheCode_*.txt'|sort -n|while read f; do echo $f; cat $f|perl -nae 'print "$F[0]\t";if ($F[4] eq "NA") {print("NA\n")} else {printf("%.2e\n",$F[4])}' | gzip - > ~/pathweb-data/genes/$(basename $f).gz; done
 
 #### 2. Populate the databases and run the server.
 
@@ -32,12 +32,12 @@ If you are on a laptop or otherwise don't want to use that script, then:
 
 1. run `pip3 install -r requirments.txt` (which may require you to set up and activate a `virtualenv` or `miniconda` or use `sudo`)
 
-2. run `python3 gauss-site/make_sqlite3_db.py` to produce `gauss-site/pheno_pathway_assoc.db`.
+2. run `python3 pathweb/make_sqlite3_db.py` to produce `pathweb/pheno_pathway_assoc.db`.
 
-3. run `python3 gauss-site/make_gene_sqlite3_db.py` to produce `gauss-site/gene.db`.
+3. run `python3 pathweb/make_gene_sqlite3_db.py` to produce `pathweb/gene.db`.
 
-4. run `python3 gauss-site/make_tables.py` to produce  `gauss-site/static/phenotypes.json` and `gauss-site/static/pathways.json`.
+4. run `python3 pathweb/make_tables.py` to produce  `pathweb/static/phenotypes.json` and `pathweb/static/pathways.json`.
 
 5. run the server with either:
-   - `python3 gauss-site/serve.py` (insecure and slow for development/debugging)
-   - `cd gauss-site && gunicorn serve:app -k gevent -w4 --bind 0.0.0.0:8000` (fast for production)
+   - `python3 pathweb/serve.py` (insecure and slow for development/debugging)
+   - `cd pathweb && gunicorn serve:app -k gevent -w4 --bind 0.0.0.0:8000` (fast for production)
