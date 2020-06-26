@@ -40,6 +40,12 @@ fi
 # Make a Systemd Unit file that runs gunicorn to host the site (available only locally on this machine)
 if ! [ -e /etc/systemd/system/gunicorn-pathweb.service ]; then
     sudo tee /etc/systemd/system/gunicorn-pathweb.service >/dev/null <<END
+# Sample commands to use:
+#   sudo systemctl daemon-reload  # makes systemd notice changes to this file
+#   sudo systemctl enable gunicorn-pathweb.service  # run once (re-running is fine) so that systemd knows to run this when the system starts
+#   sudo systemctl start gunicorn-pathweb.service
+#   sudo systemctl restart gunicorn-pathweb.service
+#   sudo systemctl status -n30 gunicorn-pathweb.service
 [Unit]
 Description=Gunicorn instance to serve pathweb
 After=network.target
@@ -52,8 +58,8 @@ ExecStart=$PWD/venv/bin/gunicorn -k gevent -w4 --bind localhost:8899 serve:app
 WantedBy=multi-user.target
 END
     sudo systemctl daemon-reload
-    sudo systemctl start gunicorn-pathweb
     sudo systemctl enable gunicorn-pathweb
+    sudo systemctl start gunicorn-pathweb
 fi
 
 # Make nginx reverse-proxy the local-only gunicorn port to an externally-accessible subdomain
