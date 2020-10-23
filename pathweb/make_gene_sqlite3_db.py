@@ -43,11 +43,17 @@ def pheno_gene_assoc_row_generator():
         with read_maybe_gzip(filepath, 'rt') as f:
             for i, row in enumerate(csv.reader(f, delimiter=delimiter)):
                 try:
-                    gene, pval_str, *_ = row
+                    if len(row) == 2:
+                        gene, pval_str = row
+                    elif len(row) == 8:
+                        gene, pval_str = row[0], row[4]
+                    else:
+                        raise Exception("Wrong number of parts in line {} of file {} which is {}".format(i, filepath, repr(row)))
                 except ValueError as exc:
                     raise Exception("Failed on line {} of file {} which is {}".format(i, filepath, repr(row))) from exc
                 if gene in gene_ids and pval_str != "NA":
                     pval = round_sig(float(pval_str), 3)
+                    assert 0 <= pval <= 1
                     yield (pheno_id, gene_ids[gene], pval)
 
 # make the sqlite3 database

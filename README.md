@@ -18,6 +18,7 @@ The files in `input_data/genes/` contain the associations between each phenotype
       - eg, `OUTF_PheCode_803.2.txt.gz` contains data about phenotype 803.2
   - format: tab-delimited or space-delimited with columns `gene_name`, `pvalue_or_NA`
       - eg, `7SK NA` or `A1BG 8.35e-01`
+      - optionally, you may add 3 columns before and after `pvalue_or_NA`.
 
 
 These files can be collected from Flux by running:
