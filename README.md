@@ -10,12 +10,13 @@ The files in `input_data/pathways/` contain the associations between each phenot
      - eg, `PheCode_986_Curated.wConditional.txt.gz` contains data about the Curated pathways for phecode 986.
  - format: tab-delimited with columns `pathway_name`, `pathway_url`, `association_pvalue`, `pathway_genes_that_the_method_selected_as_meaningful`.
      - eg, `KEGG_GLYCOLYSIS_GLUCONEOGENESIS http://www.broadinstitute.org/gsea/msigdb/cards/KEGG_GLYCOLYSIS_GLUCONEOGENESIS 0.993 ALDH3A2,ADH1B,HK3,ALDH1B1,FBP1,TPI1,PFKP`
+     - optionally, you may include unused columns before and after `pathway_genes_that_the_method_selected_as_meaningful`
 
 The files in `input_data/genes/` contain the associations between each phenotype and gene.  Their format is:
 
   - filenames: `OUTF_PheCode_*.txt.gz`
       - eg, `OUTF_PheCode_803.2.txt.gz` contains data about phenotype 803.2
-  - format: tab-delimited with columns `gene_name`, `pvalue_or_NA`
+  - format: tab-delimited or space-delimited with columns `gene_name`, `pvalue_or_NA`
       - eg, `7SK NA` or `A1BG 8.35e-01`
 
 

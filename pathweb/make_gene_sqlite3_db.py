@@ -6,7 +6,8 @@ It's data populates the table at /pathway_pheno_assoc/GO_ODORANT_BINDING/079.1 .
 Information about which genes are selected for each (phenotype, pathway) pair is in `pheno_pathway_assoc.db`, not `gene.db`
 '''
 
-import sqlite3, gzip, csv, os, itertools, json
+import sqlite3, csv, os, itertools
+from utils import read_maybe_gzip, round_sig
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 db_filepath = 'gene.db'
@@ -37,11 +38,17 @@ def pheno_gene_assoc_row_generator():
     for phecode, pheno_id in phecode_ids.items():
         print(' - reading pheno#{}: {}'.format(pheno_id, phecode))
         filepath = '../input_data/genes/OUTF_PheCode_{}.txt.gz'.format(phecode)
-        with gzip.open(filepath, 'rt') as f:
-            for row in csv.reader(f, delimiter='\t'):
-                gene, pval_str = row
+        with read_maybe_gzip(filepath, 'rt') as f:
+            delimiter = '\t' if '\t' in next(f) else ' '
+        with read_maybe_gzip(filepath, 'rt') as f:
+            for i, row in enumerate(csv.reader(f, delimiter=delimiter)):
+                try:
+                    gene, pval_str, *_ = row
+                except ValueError as exc:
+                    raise Exception("Failed on line {} of file {} which is {}".format(i, filepath, repr(row))) from exc
                 if gene in gene_ids and pval_str != "NA":
-                    yield (pheno_id, gene_ids[gene], float(pval_str))
+                    pval = round_sig(float(pval_str), 3)
+                    yield (pheno_id, gene_ids[gene], pval)
 
 # make the sqlite3 database
 db_tmp_filepath = db_filepath + '.tmp.db'

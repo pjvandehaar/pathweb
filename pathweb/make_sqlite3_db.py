@@ -2,8 +2,9 @@
 
 # This script creates `pheno_pathway_assoc.db` using data in `input_data/pathways`
 
-import re, gzip, sqlite3, itertools, csv
+import re, sqlite3, itertools, csv
 from pathlib import Path
+from utils import read_maybe_gzip, round_sig
 dir_path = Path(__file__).absolute().parent
 input_dir_path = dir_path.parent / 'input_data'
 pheno_dir_path = input_dir_path / 'pathways'
@@ -91,22 +92,33 @@ def pheno_pathway_assoc_row_generator(): # doesn't output primary key, let's sql
         phecode_id = phecode_ids[phecode]
         filename = 'PheCode_{}_{}.wConditional.txt.gz'.format(phecode, genesettype)
         print(i, filename)
-        with gzip.open(pheno_dir_path / filename, 'rt') as f:
-            for line in f:
-                name, url, pval_string, selected_genes_string = line.split()
-                if pval_string == 'NA' and selected_genes_string == 'NA':
-                    # I don't know why these lines exist but there's a lot of them.
-                    continue
-                selected_genes = selected_genes_string.split(',')
+        with read_maybe_gzip(pheno_dir_path / filename, 'rt') as f:
+            for i, line in enumerate(f):
                 try:
-                    assert name in pathways, line
-                    assert pathways[name]['url'] == url, line
-                    assert pval_string == '0' or 1e-6 <= float(pval_string) <= 1, line
-                    assert 1 <= len(selected_genes) < 20e3, line
-                    assert all(g in pathways[name]['genes'] for g in selected_genes), line
-                except Exception: raise Exception(line)
-                pval = 1e-6 if pval_string=='0' else float(pval_string)
-                yield (phecode_id, pathway_ids[name], pval, selected_genes_string)
+                    parts = line.split()
+                    if len(parts) == 6:
+                        # This is the normal format, with 2 unused columns
+                        name, url, pval_string, _, selected_genes_string, _ = line.split()
+                    elif len(parts) == 4:
+                        # This is the trimmed format without the 2 unused columns
+                        name, url, pval_string, selected_genes_string = line.split()
+                    else:
+                        raise Exception("wrong number of columns")
+                    if pval_string == 'NA' and selected_genes_string == 'NA':
+                        # I don't know why these lines exist but there's a lot of them.
+                        continue
+                    selected_genes = selected_genes_string.split(',')
+                    try:
+                        assert name in pathways, line
+                        assert pathways[name]['url'] == url, line
+                        assert 0 <= float(pval_string) <= 1, line
+                        assert 1 <= len(selected_genes) < 20e3, line
+                        assert all(g in pathways[name]['genes'] for g in selected_genes), line
+                    except Exception: raise Exception(line)
+                    pval = round_sig(float(pval_string), 3)
+                    yield (phecode_id, pathway_ids[name], pval, selected_genes_string)
+                except Exception as exc:
+                    raise Exception("Failed on line {} of file {} which is {}".format(i, pheno_dir_path/filename, repr(line))) from exc
 
 db_path = dir_path / 'pheno_pathway_assoc.db'
 db_tmp_path = db_path.with_name(db_path.name+'.tmp')

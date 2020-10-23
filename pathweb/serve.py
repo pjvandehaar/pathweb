@@ -133,7 +133,7 @@ def pheno_download(phecode):
 
     with contextlib.closing(io.StringIO()) as csv_stringio:
         csv_writer = csv.writer(csv_stringio)
-        csv_writer.writerow([(name if name != 'selected_genes_comma' else 'selected_genes') for name in  colnames])
+        csv_writer.writerow([(name if name != 'selected_genes_comma' else 'selected_genes') for name in colnames])
         csv_writer.writerows(rows)
         csv_string = csv_stringio.getvalue()
 

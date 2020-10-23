@@ -9,7 +9,7 @@ $.getJSON('/api/pheno/'+model.phecode).then(function(resp) {
     var assocs = resp.assocs;
     assocs.id = assocs.name;
     assocs.trait_label = assocs.name;
-    assocs.log_pvalue = assocs.pval.map(function(p) { return -Math.log10(Math.max(1e-6, p)); });
+    assocs.log_pvalue = assocs.pval.map(function(p) { return -Math.log10(Math.max(1e-320, p)); }); // Don't let any pval=0 make log_pvalue=inf
     assocs.trait_group = assocs.category;
 
     var significance_threshold = -Math.log10(0.05 / assocs.id.length);

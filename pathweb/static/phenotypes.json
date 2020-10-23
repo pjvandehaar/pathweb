@@ -972,6 +972,15 @@
 "has_assocs":true
 },
 {
+"phecode":"189.1",
+"phenostring":"Cancer of kidney and renal pelvis",
+"category":"neoplasms",
+"num_cases":1045,
+"num_controls":404796,
+"num_sig_assocs":0,
+"has_assocs":true
+},
+{
 "phecode":"189.11",
 "phenostring":"Malignant neoplasm of kidney, except pelvis",
 "category":"neoplasms",
@@ -7555,6 +7564,15 @@
 "phenostring":"Intestinal obstruction without mention of hernia",
 "category":"digestive",
 "num_cases":3994,
+"num_controls":334783,
+"num_sig_assocs":0,
+"has_assocs":true
+},
+{
+"phecode":"560.1",
+"phenostring":"Paralytic ileus",
+"category":"digestive",
+"num_cases":522,
 "num_controls":334783,
 "num_sig_assocs":0,
 "has_assocs":true

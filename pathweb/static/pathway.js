@@ -9,7 +9,7 @@ $.getJSON('/api/pathway/'+model.pathway_name).then(function(resp) {
     var assocs = resp.assocs;
     assocs.id = assocs.phecode;
     assocs.trait_label = assocs.phecode.map(function(d, i) { return assocs.phecode[i] + ' - ' + assocs.phenostring[i]; });;
-    assocs.log_pvalue = assocs.pval.map(function(p) { return -Math.log10(Math.max(1e-6, p)); });
+    assocs.log_pvalue = assocs.pval.map(function(p) { return -Math.log10(Math.max(1e-320, p)); }); // Don't let any pval=0 make log_pvalue=inf
     assocs.trait_group = assocs.category;
 
     var significance_threshold = -Math.log10(5e-6); // Diptavo said to use 5e-6 //-Math.log10(0.05/assocs.id.length);
