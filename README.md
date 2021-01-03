@@ -40,6 +40,7 @@ If you are on a laptop or otherwise don't want to use that script, then:
 
 4. run `python3 pathweb/make_tables.py` to produce  `pathweb/static/phenotypes.json` and `pathweb/static/pathways.json`.
 
-5. run the server with either:
+5. run the server with one of these:
    - `python3 pathweb/serve.py` (insecure and slow for development/debugging)
    - `cd pathweb && gunicorn serve:app -k gevent -w4 --bind 0.0.0.0:8000` (fast for production)
+   - `sudo systemctl restart gunicorn-pathweb` (if the server is run by /etc/systemd/system/gunicorn-pathweb.service)
